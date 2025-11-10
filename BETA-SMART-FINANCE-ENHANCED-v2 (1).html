@@ -1,0 +1,2514 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BETA SMART FINANCE PRO v2.0 - نظام التقسيط المرن المتطور</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap');
+        * { 
+            font-family: 'Cairo', sans-serif;
+            box-sizing: border-box;
+        }
+        body { 
+            margin: 0; 
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        @media print {
+            body { 
+                print-color-adjust: exact; 
+                -webkit-print-color-adjust: exact; 
+                margin: 0;
+                padding: 0;
+                background: white !important;
+            }
+            .print-hidden { display: none !important; }
+            .print-only { display: block !important; }
+            .print-container { 
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 20mm !important;
+                background: white !important;
+            }
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+            .glass-card {
+                background: white !important;
+                border: 1px solid #ccc !important;
+            }
+        }
+        
+        .print-only { display: none; }
+        
+        /* Modern Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        
+        .glass-dark {
+            background: rgba(99, 102, 241, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        /* Premium Gradient Backgrounds */
+        .gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .gradient-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .gradient-warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        /* Modern Input Styles */
+        .modern-input {
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .modern-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .modern-input:hover {
+            border-color: #a5b4fc;
+        }
+        
+        /* Premium Button Styles */
+        .btn-premium {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-premium:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Modern Badge Styles */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-pro {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .badge-new {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-slide-in { animation: slideIn 0.4s ease-out; }
+
+        .comparison-table td, .comparison-table th {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .comparison-highlight-positive {
+            background-color: #d1fae5;
+            font-weight: bold;
+        }
+        
+        .comparison-highlight-negative {
+            background-color: #fee2e2;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ═══════════════════════════════════════════════════════════════
+        // BETA SMART FINANCE ENGINE - FLEXIBLE PAYMENT SYSTEM
+        // ═══════════════════════════════════════════════════════════════
+        
+        class SmartPaymentEngine {
+            constructor(unitValue, cashDiscountRate, discountRate, baseDate = new Date()) {
+                this.unitValue = unitValue;
+                this.cashDiscountRate = cashDiscountRate / 100;
+                this.discountRate = discountRate / 100;
+                this.cashValue = unitValue * (1 - this.cashDiscountRate);
+                this.baseDate = new Date(baseDate);
+                this.baseDate.setHours(0, 0, 0, 0);
+            }
+
+            // ═══ XNPV IMPLEMENTATION ═══
+            calculateXNPV(rate, cashFlows) {
+                if (cashFlows.length === 0) return 0;
+                
+                return cashFlows.reduce((npv, cf) => {
+                    const cfDate = new Date(cf.date);
+                    cfDate.setHours(0, 0, 0, 0);
+                    
+                    const days = Math.round((cfDate - this.baseDate) / (1000 * 60 * 60 * 24));
+                    const years = days / 365;
+                    
+                    if (days <= 0) {
+                        return npv + cf.amount;
+                    }
+                    
+                    return npv + cf.amount / Math.pow(1 + rate, years);
+                }, 0);
+            }
+
+            calculatePVWithDate(amount, paymentDate) {
+                const payment = new Date(paymentDate);
+                payment.setHours(0, 0, 0, 0);
+                const days = Math.round((payment - this.baseDate) / (1000 * 60 * 60 * 24));
+                const years = days / 365;
+                
+                if (days <= 0) {
+                    return amount;
+                }
+                
+                return amount / Math.pow(1 + this.discountRate, years);
+            }
+
+            addMonths(date, months) {
+                const d = new Date(date);
+                d.setMonth(d.getMonth() + months);
+                return d;
+            }
+
+            // ═══ FIND EQUAL INSTALLMENT ═══
+            findEqualInstallmentXNPV(targetPV, dates) {
+                let low = 0, high = targetPV * 2, tolerance = 0.1;
+                const maxIterations = 100;
+                let iterations = 0;
+
+                while (high - low > tolerance && iterations < maxIterations) {
+                    const mid = (low + high) / 2;
+                    
+                    let calculatedPV = 0;
+                    for (let i = 0; i < dates.length; i++) {
+                        calculatedPV += this.calculatePVWithDate(mid, dates[i]);
+                    }
+                    
+                    if (calculatedPV < targetPV) {
+                        low = mid;
+                    } else {
+                        high = mid;
+                    }
+                    
+                    iterations++;
+                }
+                
+                return (low + high) / 2;
+            }
+
+            // ═══ EQUAL INSTALLMENTS ═══
+            calculateEqualInstallments(params) {
+                const {
+                    downPayment,
+                    numberOfYears,
+                    frequency = 4,
+                    annualPayments = [],
+                    semiannualPayments = [],
+                    quarterlyStartDate = null
+                } = params;
+                
+                let knownPV = downPayment;
+                const schedule = [{
+                    id: 0,
+                    type: 'مقدم',
+                    date: this.baseDate.toISOString().split('T')[0],
+                    amount: downPayment,
+                    pv: downPayment,
+                    discount: 0
+                }];
+
+                let paymentId = 1;
+
+                // معالجة الدفعات السنوية
+                annualPayments.forEach((payment, index) => {
+                    const paymentDate = new Date(payment.date);
+                    const amount = payment.amount;
+                    
+                    const pv = this.calculatePVWithDate(amount, paymentDate);
+                    knownPV += pv;
+                    
+                    schedule.push({
+                        id: paymentId++,
+                        type: payment.type || `دفعة سنوية ${index + 1}`,
+                        date: paymentDate.toISOString().split('T')[0],
+                        amount,
+                        pv,
+                        discount: amount - pv
+                    });
+                });
+
+                // معالجة الدفعات النصف سنوية
+                semiannualPayments.forEach((payment, index) => {
+                    const paymentDate = new Date(payment.date);
+                    const amount = payment.amount;
+                    
+                    const pv = this.calculatePVWithDate(amount, paymentDate);
+                    knownPV += pv;
+                    
+                    schedule.push({
+                        id: paymentId++,
+                        type: payment.type || `دفعة نصف سنوية ${index + 1}`,
+                        date: paymentDate.toISOString().split('T')[0],
+                        amount,
+                        pv,
+                        discount: amount - pv
+                    });
+                });
+
+                const remainingPV = this.cashValue - knownPV;
+                const startDate = quarterlyStartDate ? new Date(quarterlyStartDate) : this.addMonths(this.baseDate, 3);
+                
+                const numberOfQuarters = numberOfYears * frequency;
+                const quarterlyDates = [];
+                for (let i = 0; i < numberOfQuarters; i++) {
+                    quarterlyDates.push(this.addMonths(startDate, i * (12 / frequency)));
+                }
+
+                const installmentAmount = this.findEqualInstallmentXNPV(remainingPV, quarterlyDates);
+
+                quarterlyDates.forEach((date, index) => {
+                    const pv = this.calculatePVWithDate(installmentAmount, date);
+                    schedule.push({
+                        id: paymentId++,
+                        type: `قسط موحد ${index + 1}`,
+                        date: date.toISOString().split('T')[0],
+                        amount: installmentAmount,
+                        pv,
+                        discount: installmentAmount - pv
+                    });
+                });
+
+                const verification = this.verifyScheduleXNPV(schedule);
+
+                return {
+                    pattern: 'equal',
+                    patternName: 'نظام القسط الموحد',
+                    downPayment,
+                    installmentAmount,
+                    numberOfInstallments: quarterlyDates.length,
+                    annualPayments: annualPayments.length,
+                    semiannualPayments: semiannualPayments.length,
+                    frequency,
+                    schedule,
+                    verification,
+                    summary: this.calculateSummary(schedule)
+                };
+            }
+
+            // ═══ DECREASING PAYMENTS ═══
+            calculateDecreasingPayments(params) {
+                const {
+                    downPayment,
+                    numberOfYears,
+                    frequency = 4,
+                    decreaseRate = 2,
+                    annualPayments = [],
+                    semiannualPayments = [],
+                    quarterlyStartDate = null
+                } = params;
+
+                let knownPV = downPayment;
+                const schedule = [{
+                    id: 0,
+                    type: 'مقدم',
+                    date: this.baseDate.toISOString().split('T')[0],
+                    amount: downPayment,
+                    pv: downPayment,
+                    discount: 0
+                }];
+
+                let paymentId = 1;
+
+                annualPayments.forEach((payment, index) => {
+                    const paymentDate = new Date(payment.date);
+                    const amount = payment.amount;
+                    
+                    const pv = this.calculatePVWithDate(amount, paymentDate);
+                    knownPV += pv;
+                    
+                    schedule.push({
+                        id: paymentId++,
+                        type: payment.type || `دفعة سنوية ${index + 1}`,
+                        date: paymentDate.toISOString().split('T')[0],
+                        amount,
+                        pv,
+                        discount: amount - pv
+                    });
+                });
+
+                semiannualPayments.forEach((payment, index) => {
+                    const paymentDate = new Date(payment.date);
+                    const amount = payment.amount;
+                    
+                    const pv = this.calculatePVWithDate(amount, paymentDate);
+                    knownPV += pv;
+                    
+                    schedule.push({
+                        id: paymentId++,
+                        type: payment.type || `دفعة نصف سنوية ${index + 1}`,
+                        date: paymentDate.toISOString().split('T')[0],
+                        amount,
+                        pv,
+                        discount: amount - pv
+                    });
+                });
+
+                const remainingPV = this.cashValue - knownPV;
+                const startDate = quarterlyStartDate ? new Date(quarterlyStartDate) : this.addMonths(this.baseDate, 3);
+                
+                const numberOfQuarters = numberOfYears * frequency;
+                const quarterlyDates = [];
+                for (let i = 0; i < numberOfQuarters; i++) {
+                    quarterlyDates.push(this.addMonths(startDate, i * (12 / frequency)));
+                }
+
+                const baseInstallment = this.findBaseInstallmentDecreasing(remainingPV, quarterlyDates, decreaseRate / 100);
+
+                quarterlyDates.forEach((date, index) => {
+                    const amount = baseInstallment * Math.pow(1 - decreaseRate / 100, index);
+                    const pv = this.calculatePVWithDate(amount, date);
+                    schedule.push({
+                        id: paymentId++,
+                        type: `قسط متناقص ${index + 1}`,
+                        date: date.toISOString().split('T')[0],
+                        amount,
+                        pv,
+                        discount: amount - pv
+                    });
+                });
+
+                const verification = this.verifyScheduleXNPV(schedule);
+
+                return {
+                    pattern: 'decreasing',
+                    patternName: 'نظام الأقساط المتناقصة',
+                    downPayment,
+                    baseInstallment,
+                    decreaseRate,
+                    numberOfInstallments: quarterlyDates.length,
+                    annualPayments: annualPayments.length,
+                    semiannualPayments: semiannualPayments.length,
+                    frequency,
+                    schedule,
+                    verification,
+                    summary: this.calculateSummary(schedule)
+                };
+            }
+
+            findBaseInstallmentDecreasing(targetPV, dates, decreaseRate) {
+                let low = 0, high = targetPV * 2, tolerance = 0.1;
+                const maxIterations = 100;
+                let iterations = 0;
+
+                while (high - low > tolerance && iterations < maxIterations) {
+                    const mid = (low + high) / 2;
+                    
+                    let calculatedPV = 0;
+                    for (let i = 0; i < dates.length; i++) {
+                        const amount = mid * Math.pow(1 - decreaseRate, i);
+                        calculatedPV += this.calculatePVWithDate(amount, dates[i]);
+                    }
+                    
+                    if (calculatedPV < targetPV) {
+                        low = mid;
+                    } else {
+                        high = mid;
+                    }
+                    
+                    iterations++;
+                }
+                
+                return (low + high) / 2;
+            }
+
+            // ═══ GRADUATED PAYMENTS ═══
+            calculateGraduatedPayments(params) {
+                const {
+                    downPayment,
+                    numberOfYears,
+                    frequency = 4,
+                    growthRate = 3,
+                    annualPayments = [],
+                    semiannualPayments = [],
+                    quarterlyStartDate = null
+                } = params;
+
+                let knownPV = downPayment;
+                const schedule = [{
+                    id: 0,
+                    type: 'مقدم',
+                    date: this.baseDate.toISOString().split('T')[0],
+                    amount: downPayment,
+                    pv: downPayment,
+                    discount: 0
+                }];
+
+                let paymentId = 1;
+
+                annualPayments.forEach((payment, index) => {
+                    const paymentDate = new Date(payment.date);
+                    const amount = payment.amount;
+                    
+                    const pv = this.calculatePVWithDate(amount, paymentDate);
+                    knownPV += pv;
+                    
+                    schedule.push({
+                        id: paymentId++,
+                        type: payment.type || `دفعة سنوية ${index + 1}`,
+                        date: paymentDate.toISOString().split('T')[0],
+                        amount,
+                        pv,
+                        discount: amount - pv
+                    });
+                });
+
+                semiannualPayments.forEach((payment, index) => {
+                    const paymentDate = new Date(payment.date);
+                    const amount = payment.amount;
+                    
+                    const pv = this.calculatePVWithDate(amount, paymentDate);
+                    knownPV += pv;
+                    
+                    schedule.push({
+                        id: paymentId++,
+                        type: payment.type || `دفعة نصف سنوية ${index + 1}`,
+                        date: paymentDate.toISOString().split('T')[0],
+                        amount,
+                        pv,
+                        discount: amount - pv
+                    });
+                });
+
+                const remainingPV = this.cashValue - knownPV;
+                const startDate = quarterlyStartDate ? new Date(quarterlyStartDate) : this.addMonths(this.baseDate, 3);
+                
+                const numberOfQuarters = numberOfYears * frequency;
+                const quarterlyDates = [];
+                for (let i = 0; i < numberOfQuarters; i++) {
+                    quarterlyDates.push(this.addMonths(startDate, i * (12 / frequency)));
+                }
+
+                const baseInstallment = this.findBaseInstallmentGraduated(remainingPV, quarterlyDates, growthRate / 100);
+
+                quarterlyDates.forEach((date, index) => {
+                    const amount = baseInstallment * Math.pow(1 + growthRate / 100, index);
+                    const pv = this.calculatePVWithDate(amount, date);
+                    schedule.push({
+                        id: paymentId++,
+                        type: `قسط متزايد ${index + 1}`,
+                        date: date.toISOString().split('T')[0],
+                        amount,
+                        pv,
+                        discount: amount - pv
+                    });
+                });
+
+                const verification = this.verifyScheduleXNPV(schedule);
+
+                return {
+                    pattern: 'graduated',
+                    patternName: 'نظام الأقساط المتزايدة',
+                    downPayment,
+                    baseInstallment,
+                    growthRate,
+                    numberOfInstallments: quarterlyDates.length,
+                    annualPayments: annualPayments.length,
+                    semiannualPayments: semiannualPayments.length,
+                    frequency,
+                    schedule,
+                    verification,
+                    summary: this.calculateSummary(schedule)
+                };
+            }
+
+            findBaseInstallmentGraduated(targetPV, dates, growthRate) {
+                let low = 0, high = targetPV * 2, tolerance = 0.1;
+                const maxIterations = 100;
+                let iterations = 0;
+
+                while (high - low > tolerance && iterations < maxIterations) {
+                    const mid = (low + high) / 2;
+                    
+                    let calculatedPV = 0;
+                    for (let i = 0; i < dates.length; i++) {
+                        const amount = mid * Math.pow(1 + growthRate, i);
+                        calculatedPV += this.calculatePVWithDate(amount, dates[i]);
+                    }
+                    
+                    if (calculatedPV < targetPV) {
+                        low = mid;
+                    } else {
+                        high = mid;
+                    }
+                    
+                    iterations++;
+                }
+                
+                return (low + high) / 2;
+            }
+
+            // ═══ CUSTOM DISTRIBUTION ═══
+            calculateCustomDistribution(params) {
+                const {
+                    downPayment,
+                    customPayments = [],
+                    quarterlyYears = 0,
+                    quarterlyStartDate = null
+                } = params;
+                
+                let knownPV = downPayment;
+                const schedule = [{
+                    id: 0,
+                    type: 'مقدم',
+                    date: this.baseDate.toISOString().split('T')[0],
+                    amount: downPayment,
+                    pv: downPayment,
+                    discount: 0
+                }];
+
+                let paymentId = 1;
+
+                customPayments.forEach((payment) => {
+                    const baseAmount = payment.amount;
+
+                    if (payment.frequency === 'once') {
+                        const paymentDate = new Date(payment.startDate);
+                        const pv = this.calculatePVWithDate(baseAmount, paymentDate);
+                        knownPV += pv;
+                        
+                        schedule.push({
+                            id: paymentId++,
+                            type: payment.type || 'دفعة',
+                            date: paymentDate.toISOString().split('T')[0],
+                            amount: baseAmount,
+                            pv,
+                            discount: baseAmount - pv
+                        });
+                    } else {
+                        const monthsInterval = payment.frequency === 'annual' ? 12 : 6;
+                        const numberOfPayments = payment.numberOfPayments || 1;
+                        
+                        for (let i = 0; i < numberOfPayments; i++) {
+                            const paymentDate = this.addMonths(new Date(payment.startDate), i * monthsInterval);
+                            const pv = this.calculatePVWithDate(baseAmount, paymentDate);
+                            knownPV += pv;
+                            
+                            schedule.push({
+                                id: paymentId++,
+                                type: `${payment.type || 'دفعة'} ${i + 1}`,
+                                date: paymentDate.toISOString().split('T')[0],
+                                amount: baseAmount,
+                                pv,
+                                discount: baseAmount - pv
+                            });
+                        }
+                    }
+                });
+
+                if (quarterlyYears > 0) {
+                    const remainingPV = this.cashValue - knownPV;
+                    const startDate = quarterlyStartDate ? new Date(quarterlyStartDate) : this.addMonths(this.baseDate, 3);
+                    
+                    const numberOfQuarters = quarterlyYears * 4;
+                    const quarterlyDates = [];
+                    for (let i = 0; i < numberOfQuarters; i++) {
+                        quarterlyDates.push(this.addMonths(startDate, i * 3));
+                    }
+
+                    const quarterlyInstallment = this.findEqualInstallmentXNPV(remainingPV, quarterlyDates);
+
+                    quarterlyDates.forEach((date, index) => {
+                        const pv = this.calculatePVWithDate(quarterlyInstallment, date);
+                        schedule.push({
+                            id: paymentId++,
+                            type: `قسط ربع سنوي ${index + 1}`,
+                            date: date.toISOString().split('T')[0],
+                            amount: quarterlyInstallment,
+                            pv,
+                            discount: quarterlyInstallment - pv
+                        });
+                    });
+                }
+
+                const verification = this.verifyScheduleXNPV(schedule);
+
+                return {
+                    pattern: 'custom',
+                    patternName: 'نظام التوزيع المخصص',
+                    downPayment,
+                    customPayments,
+                    schedule,
+                    verification,
+                    summary: this.calculateSummary(schedule)
+                };
+            }
+
+            // ═══ BASE SYSTEM ═══
+            calculateBaseSystem(baseSystemConfig, unitValue) {
+                if (!baseSystemConfig) return null;
+
+                const downPayment = baseSystemConfig.downPaymentIsPercentage 
+                    ? unitValue * (baseSystemConfig.downPaymentValue / 100)
+                    : baseSystemConfig.downPaymentValue;
+
+                const annualPayments = (baseSystemConfig.annualPayments || []).map(p => ({
+                    type: p.type,
+                    amount: p.isPercentage ? unitValue * (p.value / 100) : p.value,
+                    date: p.date
+                }));
+
+                const semiannualPayments = (baseSystemConfig.semiannualPayments || []).map(p => ({
+                    type: p.type,
+                    amount: p.isPercentage ? unitValue * (p.value / 100) : p.value,
+                    date: p.date
+                }));
+
+                return this.calculateEqualInstallments({
+                    downPayment,
+                    numberOfYears: baseSystemConfig.quarterlyYears,
+                    frequency: 4,
+                    annualPayments,
+                    semiannualPayments,
+                    quarterlyStartDate: null
+                });
+            }
+
+            // ═══ IMPLIED DISCOUNT RATE ═══
+            calculateImpliedDiscountRate(baseSystem, unitValue) {
+                const targetPV = this.cashValue;
+                const payments = [];
+                
+                const downPayment = baseSystem.downPaymentIsPercentage 
+                    ? unitValue * (baseSystem.downPaymentValue / 100)
+                    : baseSystem.downPaymentValue;
+                    
+                payments.push({ amount: downPayment, date: this.baseDate });
+                
+                if (baseSystem.annualPayments && baseSystem.annualPayments.length > 0) {
+                    baseSystem.annualPayments.forEach((payment, index) => {
+                        const date = this.addMonths(this.baseDate, (index + 1) * 12);
+                        const amount = payment.isPercentage 
+                            ? unitValue * (payment.value / 100)
+                            : payment.value;
+                        payments.push({ amount, date });
+                    });
+                }
+
+                if (baseSystem.semiannualPayments && baseSystem.semiannualPayments.length > 0) {
+                    baseSystem.semiannualPayments.forEach((payment, index) => {
+                        const date = this.addMonths(this.baseDate, (index + 1) * 6);
+                        const amount = payment.isPercentage 
+                            ? unitValue * (payment.value / 100)
+                            : payment.value;
+                        payments.push({ amount, date });
+                    });
+                }
+                
+                let knownAmount = payments.reduce((sum, p) => sum + p.amount, 0);
+                let remainingAmount = unitValue - knownAmount;
+                
+                const numberOfQuarters = baseSystem.quarterlyYears * 4;
+                const quarterlyAmount = remainingAmount / numberOfQuarters;
+                
+                for (let i = 0; i < numberOfQuarters; i++) {
+                    const date = this.addMonths(this.baseDate, (i + 1) * 3);
+                    payments.push({ amount: quarterlyAmount, date });
+                }
+                
+                return this.findDiscountRateXNPV(payments, targetPV);
+            }
+
+            findDiscountRateXNPV(payments, targetPV, tolerance = 0.00001) {
+                let lowRate = 0.00;
+                let highRate = 0.50;
+                let iterations = 0;
+                const maxIterations = 100;
+                
+                const cashFlows = payments.map(p => ({
+                    date: p.date,
+                    amount: p.amount
+                }));
+
+                while (highRate - lowRate > tolerance && iterations < maxIterations) {
+                    const midRate = (lowRate + highRate) / 2;
+                    
+                    const calculatedPV = this.calculateXNPV(midRate, cashFlows);
+                    
+                    if (calculatedPV < targetPV) {
+                        highRate = midRate;
+                    } else {
+                        lowRate = midRate;
+                    }
+                    
+                    iterations++;
+                }
+                
+                const finalRate = (lowRate + highRate) / 2;
+                return finalRate * 100;
+            }
+
+            // ═══ VERIFICATION ═══
+            verifyScheduleXNPV(schedule) {
+                const cashFlows = schedule.map(p => ({
+                    date: new Date(p.date),
+                    amount: p.amount
+                }));
+
+                const totalPV = this.calculateXNPV(this.discountRate, cashFlows);
+                const totalPaid = schedule.reduce((sum, payment) => sum + payment.amount, 0);
+                const difference = totalPV - this.cashValue;
+                const percentDiff = (difference / this.cashValue) * 100;
+                
+                return {
+                    totalPV,
+                    totalPaid,
+                    cashValue: this.cashValue,
+                    difference,
+                    percentDiff,
+                    status: Math.abs(difference) < 1000 ? 'مطابق ✅' : 'غير مطابق ❌',
+                    accuracy: Math.abs(percentDiff) < 0.1 ? 'دقة عالية' : 'يحتاج تعديل'
+                };
+            }
+
+            calculateSummary(schedule) {
+                const totalPaid = schedule.reduce((sum, p) => sum + p.amount, 0);
+                const totalPV = schedule.reduce((sum, p) => sum + p.pv, 0);
+                const totalDiscount = schedule.reduce((sum, p) => sum + p.discount, 0);
+                
+                return {
+                    numberOfPayments: schedule.length,
+                    totalPaid,
+                    totalPV,
+                    totalDiscount,
+                    effectiveInterestRate: ((totalPaid - this.cashValue) / this.cashValue) * 100,
+                    averagePayment: totalPaid / schedule.length
+                };
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // BETA SMART FINANCE - نظام التقسيط المرن
+        // ═══════════════════════════════════════════════════════════════
+
+        function BetaSmartFinance() {
+            const [isAdmin, setIsAdmin] = useState(false);
+            const [showAdminPanel, setShowAdminPanel] = useState(false);
+            const [adminPassword, setAdminPassword] = useState('');
+            const ADMIN_PASSWORD = 'beta2025';
+
+            const [projects, setProjects] = useState(() => {
+                const saved = localStorage.getItem('betaProjects_final');
+                return saved ? JSON.parse(saved) : [
+                    { 
+                        id: 1, 
+                        name: 'بيتا جرينز المستقبل', 
+                        cashDiscountRate: 40, 
+                        discountRate: 17.1709,
+                        discountRateMode: 'manual',
+                        baseSystem: {
+                            downPaymentValue: 10,
+                            downPaymentIsPercentage: true,
+                            annualPayments: [],
+                            semiannualPayments: [],
+                            quarterlyYears: 8
+                        },
+                        description: 'مشروع سكني متكامل', 
+                        color: 'emerald' 
+                    },
+                    { 
+                        id: 2, 
+                        name: 'بيتا ريزيدنس أكتوبر', 
+                        cashDiscountRate: 30, 
+                        discountRate: 13.643,
+                        discountRateMode: 'manual',
+                        baseSystem: {
+                            downPaymentValue: 15,
+                            downPaymentIsPercentage: true,
+                            annualPayments: [{ value: 10, isPercentage: true, type: 'دفعة سنوية' }],
+                            semiannualPayments: [],
+                            quarterlyYears: 8
+                        },
+                        description: 'مجمع سكني فاخر', 
+                        color: 'blue' 
+                    },
+                ];
+            });
+
+            useEffect(() => {
+                localStorage.setItem('betaProjects_final', JSON.stringify(projects));
+            }, [projects]);
+
+            const [showProjectsManager, setShowProjectsManager] = useState(false);
+            const [editingProject, setEditingProject] = useState(null);
+            const [selectedProjectId, setSelectedProjectId] = useState(1);
+            
+            const [showBaseSystemModal, setShowBaseSystemModal] = useState(false);
+            const [currentProjectForBaseSystem, setCurrentProjectForBaseSystem] = useState(null);
+            const [tempBaseSystem, setTempBaseSystem] = useState({
+                downPaymentValue: 10,
+                downPaymentIsPercentage: true,
+                annualPayments: [],
+                semiannualPayments: [],
+                quarterlyYears: 8
+            });
+            
+            const [unitValue, setUnitValue] = useState(10000000);
+            const [unitNumber, setUnitNumber] = useState('');
+            const [selectedPattern, setSelectedPattern] = useState('equal');
+            
+            const [downPaymentValue, setDownPaymentValue] = useState(10);
+            const [downPaymentIsPercentage, setDownPaymentIsPercentage] = useState(true);
+            const [numberOfYears, setNumberOfYears] = useState(8);
+            const [frequency, setFrequency] = useState(4);
+            const [annualPayments, setAnnualPayments] = useState([]);
+            const [semiannualPayments, setSemiannualPayments] = useState([]);
+            const [quarterlyStartDate, setQuarterlyStartDate] = useState('');
+            
+            const [decreaseRate, setDecreaseRate] = useState(2);
+            const [growthRate, setGrowthRate] = useState(3);
+            
+            const [customPayments, setCustomPayments] = useState([]);
+            const [quarterlyYears, setQuarterlyYears] = useState(8);
+            const [customQuarterlyStartDate, setCustomQuarterlyStartDate] = useState('');
+            
+            const [results, setResults] = useState(null);
+            const [baseSystemResults, setBaseSystemResults] = useState(null);
+            const [showComparison, setShowComparison] = useState(false);
+            const [comparisonView, setComparisonView] = useState('summary');
+
+            const patterns = [
+                { id: 'equal', name: 'قسط موحد', description: 'جميع الأقساط بنفس القيمة', color: 'blue', icon: '⚖️' },
+                { id: 'decreasing', name: 'أقساط متناقصة', description: 'الأقساط تتناقص مع الوقت', color: 'emerald', icon: '📉' },
+                { id: 'graduated', name: 'أقساط متزايدة', description: 'الأقساط تزيد مع الوقت', color: 'purple', icon: '📈' },
+                { id: 'custom', name: 'توزيع مخصص', description: 'أنت تحدد الدفعات', color: 'amber', icon: '⚡' },
+            ];
+
+            const formatCurrency = (value) => {
+                return new Intl.NumberFormat('ar-EG', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(value) + ' ج';
+            };
+
+            const formatDate = (dateString) => {
+                return new Date(dateString).toLocaleDateString('ar-EG', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+            };
+
+            const getSelectedProject = () => projects.find(p => p.id === selectedProjectId);
+
+            const handlePrint = () => {
+                window.print();
+            };
+
+            const calculateDownPayment = () => {
+                return downPaymentIsPercentage 
+                    ? unitValue * (downPaymentValue / 100)
+                    : downPaymentValue;
+            };
+
+            useEffect(() => {
+                const project = getSelectedProject();
+                if (project && project.baseSystem && unitValue > 0) {
+                    if (selectedPattern === 'equal' || selectedPattern === 'decreasing' || selectedPattern === 'graduated') {
+                        setDownPaymentValue(project.baseSystem.downPaymentValue);
+                        setDownPaymentIsPercentage(project.baseSystem.downPaymentIsPercentage);
+                        setNumberOfYears(project.baseSystem.quarterlyYears);
+                        
+                        if (project.baseSystem.annualPayments && project.baseSystem.annualPayments.length > 0) {
+                            const today = new Date();
+                            const formattedPayments = project.baseSystem.annualPayments.map((p, index) => {
+                                const paymentDate = new Date(today);
+                                paymentDate.setFullYear(today.getFullYear() + index + 1);
+                                return {
+                                    id: Date.now() + index,
+                                    type: p.type || 'دفعة سنوية',
+                                    value: p.value,
+                                    isPercentage: p.isPercentage,
+                                    date: paymentDate.toISOString().split('T')[0]
+                                };
+                            });
+                            setAnnualPayments(formattedPayments);
+                        } else {
+                            setAnnualPayments([]);
+                        }
+
+                        if (project.baseSystem.semiannualPayments && project.baseSystem.semiannualPayments.length > 0) {
+                            const today = new Date();
+                            const formattedPayments = project.baseSystem.semiannualPayments.map((p, index) => {
+                                const paymentDate = new Date(today);
+                                paymentDate.setMonth(today.getMonth() + (index + 1) * 6);
+                                return {
+                                    id: Date.now() + index + 1000,
+                                    type: p.type || 'دفعة نصف سنوية',
+                                    value: p.value,
+                                    isPercentage: p.isPercentage,
+                                    date: paymentDate.toISOString().split('T')[0]
+                                };
+                            });
+                            setSemiannualPayments(formattedPayments);
+                        } else {
+                            setSemiannualPayments([]);
+                        }
+                    }
+                }
+            }, [selectedProjectId, selectedPattern, unitValue]);
+
+            const openBaseSystemModal = (projectId) => {
+                const project = projects.find(p => p.id === projectId);
+                setCurrentProjectForBaseSystem(project);
+                
+                if (project.baseSystem) {
+                    setTempBaseSystem(project.baseSystem);
+                } else {
+                    setTempBaseSystem({
+                        downPaymentValue: 10,
+                        downPaymentIsPercentage: true,
+                        annualPayments: [],
+                        semiannualPayments: [],
+                        quarterlyYears: 8
+                    });
+                }
+                
+                setShowBaseSystemModal(true);
+            };
+
+            const calculateDiscountRateForProject = () => {
+                if (!currentProjectForBaseSystem) return;
+                
+                if (!unitValue || unitValue <= 0) {
+                    alert('⚠️ يرجى إدخال قيمة الوحدة أولاً');
+                    return;
+                }
+
+                const engine = new SmartPaymentEngine(
+                    unitValue, 
+                    currentProjectForBaseSystem.cashDiscountRate, 
+                    14,
+                    new Date()
+                );
+                
+                const impliedRate = engine.calculateImpliedDiscountRate(tempBaseSystem, unitValue);
+                
+                const updatedProjects = projects.map(p => {
+                    if (p.id === currentProjectForBaseSystem.id) {
+                        return {
+                            ...p,
+                            discountRate: impliedRate,
+                            discountRateMode: 'auto',
+                            baseSystem: tempBaseSystem
+                        };
+                    }
+                    return p;
+                });
+                
+                setProjects(updatedProjects);
+                setShowBaseSystemModal(false);
+                
+                alert(`✅ تم حساب معدل الخصم للمشروع "${currentProjectForBaseSystem.name}"!\n\nمعدل الخصم المحسوب: ${impliedRate.toFixed(3)}%\n\nتم حفظ النظام الأساسي مع المشروع.`);
+            };
+
+            const addProject = () => {
+                const newProject = {
+                    id: Date.now(),
+                    name: 'مشروع جديد',
+                    cashDiscountRate: 30,
+                    discountRate: 14.643,
+                    discountRateMode: 'manual',
+                    baseSystem: {
+                        downPaymentValue: 10,
+                        downPaymentIsPercentage: true,
+                        annualPayments: [],
+                        semiannualPayments: [],
+                        quarterlyYears: 8
+                    },
+                    description: 'وصف المشروع',
+                    color: 'indigo'
+                };
+                setProjects([...projects, newProject]);
+                setEditingProject(newProject.id);
+            };
+
+            const deleteProject = (projectId) => {
+                if (projects.length === 1) {
+                    alert('لا يمكن حذف آخر مشروع!');
+                    return;
+                }
+                if (confirm('هل أنت متأكد من حذف هذا المشروع؟')) {
+                    setProjects(projects.filter(p => p.id !== projectId));
+                    if (selectedProjectId === projectId) {
+                        setSelectedProjectId(projects.find(p => p.id !== projectId).id);
+                    }
+                }
+            };
+
+            const updateProject = (projectId, field, value) => {
+                setProjects(projects.map(p => 
+                    p.id === projectId ? { ...p, [field]: value } : p
+                ));
+            };
+
+            const addAnnualPayment = () => {
+                const today = new Date();
+                const defaultDate = new Date(today);
+                defaultDate.setFullYear(today.getFullYear() + 1);
+                
+                setAnnualPayments([...annualPayments, {
+                    id: Date.now(),
+                    type: 'دفعة سنوية',
+                    value: 10,
+                    isPercentage: true,
+                    date: defaultDate.toISOString().split('T')[0]
+                }]);
+            };
+
+            const updateAnnualPayment = (id, field, value) => {
+                setAnnualPayments(annualPayments.map(p =>
+                    p.id === id ? { ...p, [field]: value } : p
+                ));
+            };
+
+            const deleteAnnualPayment = (id) => {
+                setAnnualPayments(annualPayments.filter(p => p.id !== id));
+            };
+
+            const addSemiannualPayment = () => {
+                const today = new Date();
+                const defaultDate = new Date(today);
+                defaultDate.setMonth(today.getMonth() + 6);
+                
+                setSemiannualPayments([...semiannualPayments, {
+                    id: Date.now(),
+                    type: 'دفعة نصف سنوية',
+                    value: 5,
+                    isPercentage: true,
+                    date: defaultDate.toISOString().split('T')[0]
+                }]);
+            };
+
+            const updateSemiannualPayment = (id, field, value) => {
+                setSemiannualPayments(semiannualPayments.map(p =>
+                    p.id === id ? { ...p, [field]: value } : p
+                ));
+            };
+
+            const deleteSemiannualPayment = (id) => {
+                setSemiannualPayments(semiannualPayments.filter(p => p.id !== id));
+            };
+
+            const addCustomPayment = () => {
+                const today = new Date();
+                const defaultDate = new Date(today);
+                defaultDate.setFullYear(today.getFullYear() + 1);
+                
+                setCustomPayments([...customPayments, {
+                    id: Date.now(),
+                    type: 'دفعة مخصصة',
+                    value: 100000,
+                    isPercentage: false,
+                    frequency: 'once',
+                    numberOfPayments: 1,
+                    startDate: defaultDate.toISOString().split('T')[0]
+                }]);
+            };
+
+            const updateCustomPayment = (id, field, value) => {
+                setCustomPayments(customPayments.map(p =>
+                    p.id === id ? { ...p, [field]: value } : p
+                ));
+            };
+
+            const deleteCustomPayment = (id) => {
+                setCustomPayments(customPayments.filter(p => p.id !== id));
+            };
+
+            const calculateResults = () => {
+                const project = getSelectedProject();
+                if (!project) return;
+
+                const engine = new SmartPaymentEngine(
+                    unitValue, 
+                    project.cashDiscountRate, 
+                    project.discountRate,
+                    new Date()
+                );
+                
+                let result = null;
+                const downPayment = calculateDownPayment();
+
+                const annualPaymentsProcessed = annualPayments.map(p => ({
+                    type: p.type,
+                    amount: p.isPercentage ? unitValue * (p.value / 100) : p.value,
+                    date: p.date
+                }));
+
+                const semiannualPaymentsProcessed = semiannualPayments.map(p => ({
+                    type: p.type,
+                    amount: p.isPercentage ? unitValue * (p.value / 100) : p.value,
+                    date: p.date
+                }));
+
+                const commonParams = {
+                    downPayment,
+                    numberOfYears,
+                    frequency,
+                    annualPayments: annualPaymentsProcessed,
+                    semiannualPayments: semiannualPaymentsProcessed,
+                    quarterlyStartDate: quarterlyStartDate || null
+                };
+
+                switch (selectedPattern) {
+                    case 'equal':
+                        result = engine.calculateEqualInstallments(commonParams);
+                        break;
+                    case 'decreasing':
+                        result = engine.calculateDecreasingPayments({
+                            ...commonParams,
+                            decreaseRate
+                        });
+                        break;
+                    case 'graduated':
+                        result = engine.calculateGraduatedPayments({
+                            ...commonParams,
+                            growthRate
+                        });
+                        break;
+                    case 'custom':
+                        const customPaymentsProcessed = customPayments.map(p => ({
+                            type: p.type,
+                            amount: p.isPercentage ? unitValue * (p.value / 100) : p.value,
+                            frequency: p.frequency,
+                            numberOfPayments: p.numberOfPayments,
+                            startDate: p.startDate
+                        }));
+                        
+                        result = engine.calculateCustomDistribution({
+                            downPayment,
+                            customPayments: customPaymentsProcessed,
+                            quarterlyYears,
+                            quarterlyStartDate: customQuarterlyStartDate || null
+                        });
+                        break;
+                }
+
+                setResults(result);
+
+                if (project.baseSystem) {
+                    const baseEngine = new SmartPaymentEngine(
+                        unitValue, 
+                        project.cashDiscountRate, 
+                        project.discountRate,
+                        new Date()
+                    );
+                    const baseResult = baseEngine.calculateBaseSystem(project.baseSystem, unitValue);
+                    setBaseSystemResults(baseResult);
+                }
+            };
+
+            const handleAdminLogin = () => {
+                if (adminPassword === ADMIN_PASSWORD) {
+                    setIsAdmin(true);
+                    setShowAdminPanel(false);
+                    setAdminPassword('');
+                } else {
+                    alert('كلمة مرور خاطئة');
+                }
+            };
+
+            useEffect(() => {
+                if (!quarterlyStartDate) {
+                    const today = new Date();
+                    const defaultDate = new Date(today);
+                    defaultDate.setMonth(today.getMonth() + 3);
+                    setQuarterlyStartDate(defaultDate.toISOString().split('T')[0]);
+                }
+                if (!customQuarterlyStartDate) {
+                    const today = new Date();
+                    const defaultDate = new Date(today);
+                    defaultDate.setMonth(today.getMonth() + 3);
+                    setCustomQuarterlyStartDate(defaultDate.toISOString().split('T')[0]);
+                }
+            }, []);
+
+            // Enhanced Comparison Component
+            const ComparisonModal = () => {
+                if (!showComparison || !baseSystemResults || !results) return null;
+
+                const maxLength = Math.max(baseSystemResults.schedule.length, results.schedule.length);
+                
+                return (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 print-hidden" onClick={() => setShowComparison(false)}>
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-y-auto animate-fade-in" onClick={(e) => e.stopPropagation()}>
+                            <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6 text-white sticky top-0 rounded-t-2xl z-10">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-3xl font-bold">📊 تحليل مقارن متقدم</h2>
+                                        <p className="text-sm text-blue-100 mt-1">مقارنة شاملة بين النظام الأساسي والنظام المطلوب</p>
+                                    </div>
+                                    <button onClick={() => setShowComparison(false)} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg">إغلاق</button>
+                                </div>
+                                
+                                <div className="flex gap-2 mt-4">
+                                    <button
+                                        onClick={() => setComparisonView('summary')}
+                                        className={`px-4 py-2 rounded-lg transition-all ${comparisonView === 'summary' ? 'bg-white text-blue-600' : 'bg-white/20'}`}
+                                    >
+                                        📈 ملخص
+                                    </button>
+                                    <button
+                                        onClick={() => setComparisonView('detailed')}
+                                        className={`px-4 py-2 rounded-lg transition-all ${comparisonView === 'detailed' ? 'bg-white text-blue-600' : 'bg-white/20'}`}
+                                    >
+                                        🔍 تحليل تفصيلي
+                                    </button>
+                                    <button
+                                        onClick={() => setComparisonView('schedule')}
+                                        className={`px-4 py-2 rounded-lg transition-all ${comparisonView === 'schedule' ? 'bg-white text-blue-600' : 'bg-white/20'}`}
+                                    >
+                                        📋 مقارنة الجداول
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div className="p-8">
+                                {comparisonView === 'summary' && (
+                                    <div className="space-y-6">
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
+                                                <h3 className="text-2xl font-bold mb-4 text-blue-700 flex items-center gap-2">
+                                                    <span>📘</span> النظام الأساسي
+                                                </h3>
+                                                <div className="space-y-3">
+                                                    <div className="bg-white rounded-lg p-4">
+                                                        <p className="text-sm text-gray-600">المقدم</p>
+                                                        <p className="text-xl font-bold">{formatCurrency(baseSystemResults.downPayment)}</p>
+                                                    </div>
+                                                    <div className="bg-white rounded-lg p-4">
+                                                        <p className="text-sm text-gray-600">عدد الدفعات</p>
+                                                        <p className="text-xl font-bold">{baseSystemResults.schedule.length - 1}</p>
+                                                    </div>
+                                                    <div className="bg-white rounded-lg p-4">
+                                                        <p className="text-sm text-gray-600">متوسط الدفعة</p>
+                                                        <p className="text-xl font-bold">{formatCurrency(baseSystemResults.summary.averagePayment)}</p>
+                                                    </div>
+                                                    <div className="bg-white rounded-lg p-4">
+                                                        <p className="text-sm text-gray-600">إجمالي المدفوع</p>
+                                                        <p className="text-2xl font-bold text-blue-600">{formatCurrency(baseSystemResults.summary.totalPaid)}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
+                                                <h3 className="text-2xl font-bold mb-4 text-green-700 flex items-center gap-2">
+                                                    <span>📗</span> النظام المطلوب
+                                                </h3>
+                                                <div className="space-y-3">
+                                                    <div className="bg-white rounded-lg p-4">
+                                                        <p className="text-sm text-gray-600">المقدم</p>
+                                                        <p className="text-xl font-bold">{formatCurrency(results.downPayment)}</p>
+                                                    </div>
+                                                    <div className="bg-white rounded-lg p-4">
+                                                        <p className="text-sm text-gray-600">عدد الدفعات</p>
+                                                        <p className="text-xl font-bold">{results.schedule.length - 1}</p>
+                                                    </div>
+                                                    <div className="bg-white rounded-lg p-4">
+                                                        <p className="text-sm text-gray-600">متوسط الدفعة</p>
+                                                        <p className="text-xl font-bold">{formatCurrency(results.summary.averagePayment)}</p>
+                                                    </div>
+                                                    <div className="bg-white rounded-lg p-4">
+                                                        <p className="text-sm text-gray-600">إجمالي المدفوع</p>
+                                                        <p className="text-2xl font-bold text-green-600">{formatCurrency(results.summary.totalPaid)}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 border-2 border-yellow-200">
+                                            <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                                                <span>📊</span> الفروقات والتحليل
+                                            </h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <div className="bg-white rounded-lg p-4">
+                                                    <p className="text-sm text-gray-600 mb-1">فرق المقدم</p>
+                                                    <p className={`text-xl font-bold ${results.downPayment > baseSystemResults.downPayment ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {formatCurrency(Math.abs(results.downPayment - baseSystemResults.downPayment))}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        {results.downPayment > baseSystemResults.downPayment ? '↑ أعلى' : '↓ أقل'}
+                                                    </p>
+                                                </div>
+                                                <div className="bg-white rounded-lg p-4">
+                                                    <p className="text-sm text-gray-600 mb-1">فرق عدد الدفعات</p>
+                                                    <p className={`text-xl font-bold ${(results.schedule.length - 1) < (baseSystemResults.schedule.length - 1) ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {Math.abs((results.schedule.length - 1) - (baseSystemResults.schedule.length - 1))}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        {(results.schedule.length - 1) < (baseSystemResults.schedule.length - 1) ? 'أقل دفعات' : 'أكثر دفعات'}
+                                                    </p>
+                                                </div>
+                                                <div className="bg-white rounded-lg p-4">
+                                                    <p className="text-sm text-gray-600 mb-1">فرق الإجمالي</p>
+                                                    <p className={`text-xl font-bold ${results.summary.totalPaid < baseSystemResults.summary.totalPaid ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {formatCurrency(Math.abs(results.summary.totalPaid - baseSystemResults.summary.totalPaid))}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        {results.summary.totalPaid < baseSystemResults.summary.totalPaid ? '↓ توفير' : '↑ زيادة'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {comparisonView === 'detailed' && (
+                                    <div className="space-y-6">
+                                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
+                                            <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                                                <span>💰</span> التحليل المالي التفصيلي
+                                            </h3>
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-sm comparison-table">
+                                                    <thead className="bg-purple-100">
+                                                        <tr>
+                                                            <th className="px-4 py-3 text-right font-bold">البيان</th>
+                                                            <th className="px-4 py-3 text-center font-bold">النظام الأساسي</th>
+                                                            <th className="px-4 py-3 text-center font-bold">النظام المطلوب</th>
+                                                            <th className="px-4 py-3 text-center font-bold">الفرق</th>
+                                                            <th className="px-4 py-3 text-center font-bold">النسبة %</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td className="font-bold">قيمة الوحدة</td>
+                                                            <td className="text-center">{formatCurrency(unitValue)}</td>
+                                                            <td className="text-center">{formatCurrency(unitValue)}</td>
+                                                            <td className="text-center">-</td>
+                                                            <td className="text-center">-</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="font-bold">المقدم</td>
+                                                            <td className="text-center">{formatCurrency(baseSystemResults.downPayment)}</td>
+                                                            <td className="text-center">{formatCurrency(results.downPayment)}</td>
+                                                            <td className={`text-center ${results.downPayment > baseSystemResults.downPayment ? 'comparison-highlight-negative' : 'comparison-highlight-positive'}`}>
+                                                                {formatCurrency(results.downPayment - baseSystemResults.downPayment)}
+                                                            </td>
+                                                            <td className="text-center">
+                                                                {((results.downPayment - baseSystemResults.downPayment) / baseSystemResults.downPayment * 100).toFixed(2)}%
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="font-bold">عدد الدفعات</td>
+                                                            <td className="text-center">{baseSystemResults.schedule.length - 1}</td>
+                                                            <td className="text-center">{results.schedule.length - 1}</td>
+                                                            <td className={`text-center ${(results.schedule.length - 1) > (baseSystemResults.schedule.length - 1) ? 'comparison-highlight-negative' : 'comparison-highlight-positive'}`}>
+                                                                {(results.schedule.length - 1) - (baseSystemResults.schedule.length - 1)}
+                                                            </td>
+                                                            <td className="text-center">
+                                                                {(((results.schedule.length - 1) - (baseSystemResults.schedule.length - 1)) / (baseSystemResults.schedule.length - 1) * 100).toFixed(2)}%
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="font-bold">متوسط الدفعة</td>
+                                                            <td className="text-center">{formatCurrency(baseSystemResults.summary.averagePayment)}</td>
+                                                            <td className="text-center">{formatCurrency(results.summary.averagePayment)}</td>
+                                                            <td className={`text-center ${results.summary.averagePayment > baseSystemResults.summary.averagePayment ? 'comparison-highlight-negative' : 'comparison-highlight-positive'}`}>
+                                                                {formatCurrency(results.summary.averagePayment - baseSystemResults.summary.averagePayment)}
+                                                            </td>
+                                                            <td className="text-center">
+                                                                {((results.summary.averagePayment - baseSystemResults.summary.averagePayment) / baseSystemResults.summary.averagePayment * 100).toFixed(2)}%
+                                                            </td>
+                                                        </tr>
+                                                        <tr className="bg-yellow-50">
+                                                            <td className="font-bold">إجمالي المدفوع</td>
+                                                            <td className="text-center font-bold">{formatCurrency(baseSystemResults.summary.totalPaid)}</td>
+                                                            <td className="text-center font-bold">{formatCurrency(results.summary.totalPaid)}</td>
+                                                            <td className={`text-center ${results.summary.totalPaid > baseSystemResults.summary.totalPaid ? 'comparison-highlight-negative' : 'comparison-highlight-positive'}`}>
+                                                                {formatCurrency(results.summary.totalPaid - baseSystemResults.summary.totalPaid)}
+                                                            </td>
+                                                            <td className="text-center font-bold">
+                                                                {((results.summary.totalPaid - baseSystemResults.summary.totalPaid) / baseSystemResults.summary.totalPaid * 100).toFixed(2)}%
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        {isAdmin && (
+                                            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 border-2 border-cyan-200">
+                                                <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                                                    <span>📉</span> تحليل التدفقات النقدية (للمدير)
+                                                </h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="bg-white rounded-lg p-4">
+                                                        <h4 className="font-bold text-lg mb-3 text-blue-600">النظام الأساسي</h4>
+                                                        <div className="space-y-2 text-sm">
+                                                            <div className="flex justify-between">
+                                                                <span>القيمة الحالية الصافية:</span>
+                                                                <span className="font-bold">{formatCurrency(baseSystemResults.verification.totalPV)}</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span>إجمالي الخصومات:</span>
+                                                                <span className="font-bold">{formatCurrency(baseSystemResults.summary.totalDiscount)}</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span>الفائدة الفعلية:</span>
+                                                                <span className="font-bold">{baseSystemResults.summary.effectiveInterestRate.toFixed(2)}%</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="bg-white rounded-lg p-4">
+                                                        <h4 className="font-bold text-lg mb-3 text-green-600">النظام المطلوب</h4>
+                                                        <div className="space-y-2 text-sm">
+                                                            <div className="flex justify-between">
+                                                                <span>القيمة الحالية الصافية:</span>
+                                                                <span className="font-bold">{formatCurrency(results.verification.totalPV)}</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span>إجمالي الخصومات:</span>
+                                                                <span className="font-bold">{formatCurrency(results.summary.totalDiscount)}</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span>الفائدة الفعلية:</span>
+                                                                <span className="font-bold">{results.summary.effectiveInterestRate.toFixed(2)}%</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {comparisonView === 'schedule' && (
+                                    <div className="space-y-6">
+                                        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 border-2 border-indigo-200">
+                                            <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                                                <span>📅</span> مقارنة جداول الدفعات
+                                            </h3>
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-sm comparison-table">
+                                                    <thead className="bg-indigo-100">
+                                                        <tr>
+                                                            <th className="px-4 py-3 text-center font-bold">م</th>
+                                                            <th className="px-4 py-3 text-right font-bold">النوع (أساسي)</th>
+                                                            <th className="px-4 py-3 text-center font-bold">المبلغ (أساسي)</th>
+                                                            <th className="px-4 py-3 text-right font-bold">النوع (مطلوب)</th>
+                                                            <th className="px-4 py-3 text-center font-bold">المبلغ (مطلوب)</th>
+                                                            <th className="px-4 py-3 text-center font-bold">الفرق</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {Array.from({length: maxLength}).map((_, index) => {
+                                                            const basePayment = baseSystemResults.schedule[index];
+                                                            const newPayment = results.schedule[index];
+                                                            const diff = (basePayment && newPayment) ? newPayment.amount - basePayment.amount : 0;
+                                                            
+                                                            return (
+                                                                <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                                                    <td className="text-center font-bold">{index + 1}</td>
+                                                                    <td className="text-right">{basePayment ? basePayment.type : '-'}</td>
+                                                                    <td className="text-center">{basePayment ? formatCurrency(basePayment.amount) : '-'}</td>
+                                                                    <td className="text-right">{newPayment ? newPayment.type : '-'}</td>
+                                                                    <td className="text-center">{newPayment ? formatCurrency(newPayment.amount) : '-'}</td>
+                                                                    <td className={`text-center ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-green-600' : ''}`}>
+                                                                        {(basePayment && newPayment) ? formatCurrency(Math.abs(diff)) : '-'}
+                                                                        {diff > 0 && ' ↑'}
+                                                                        {diff < 0 && ' ↓'}
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                        <tr className="bg-yellow-100 font-bold">
+                                                            <td colSpan="2" className="text-right">الإجمالي</td>
+                                                            <td className="text-center">{formatCurrency(baseSystemResults.summary.totalPaid)}</td>
+                                                            <td className="text-right">الإجمالي</td>
+                                                            <td className="text-center">{formatCurrency(results.summary.totalPaid)}</td>
+                                                            <td className={`text-center ${results.summary.totalPaid > baseSystemResults.summary.totalPaid ? 'text-red-600' : 'text-green-600'}`}>
+                                                                {formatCurrency(Math.abs(results.summary.totalPaid - baseSystemResults.summary.totalPaid))}
+                                                                {results.summary.totalPaid > baseSystemResults.summary.totalPaid ? ' ↑' : ' ↓'}
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 md:p-8" dir="rtl">
+                    <div className="max-w-7xl mx-auto space-y-6">
+                        
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-2xl p-8 text-white relative overflow-hidden print-hidden">
+                            <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full -translate-x-32 -translate-y-32"></div>
+                            <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full translate-x-48 translate-y-48"></div>
+                            
+                            <div className="relative z-10">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h1 className="text-4xl font-bold mb-2">🏢 نظام التقسيط المرن</h1>
+                                        <p className="text-indigo-100 text-lg">BETA SMART FINANCE | شركة بيتا للتطوير العقاري</p>
+                                    </div>
+                                    <button
+                                        onClick={() => isAdmin ? setIsAdmin(false) : setShowAdminPanel(true)}
+                                        className="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-xl backdrop-blur-lg transition-all"
+                                    >
+                                        {isAdmin ? '🔓 وضع المدير' : '🔒 تسجيل دخول'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Admin Login */}
+                        {showAdminPanel && !isAdmin && (
+                            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-indigo-200 animate-fade-in print-hidden">
+                                <h3 className="text-xl font-bold text-gray-800 mb-4">🔐 تسجيل دخول المدير</h3>
+                                <div className="flex gap-4">
+                                    <input
+                                        type="password"
+                                        value={adminPassword}
+                                        onChange={(e) => setAdminPassword(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
+                                        placeholder="كلمة المرور"
+                                        className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
+                                    />
+                                    <button onClick={handleAdminLogin} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors">دخول</button>
+                                    <button onClick={() => setShowAdminPanel(false)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition-colors">إلغاء</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Projects Selection */}
+                        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-100 print-hidden">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-2xl font-bold text-gray-800">🏢 اختر المشروع</h2>
+                                {isAdmin && (
+                                    <div className="flex gap-2">
+                                        <button onClick={addProject} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                                            ➕ إضافة مشروع
+                                        </button>
+                                        <button onClick={() => setShowProjectsManager(!showProjectsManager)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors">
+                                            ⚙️ إدارة
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {isAdmin && showProjectsManager && (
+                                <div className="mb-6 p-4 bg-gray-50 rounded-lg border-2 border-gray-200 animate-fade-in">
+                                    <h3 className="font-bold text-lg mb-4">⚙️ لوحة تحكم المشاريع</h3>
+                                    <div className="space-y-4">
+                                        {projects.map(project => (
+                                            <div key={project.id} className="bg-white p-4 rounded-lg border border-gray-300">
+                                                {editingProject === project.id ? (
+                                                    <div className="space-y-3">
+                                                        <input
+                                                            type="text"
+                                                            value={project.name}
+                                                            onChange={(e) => updateProject(project.id, 'name', e.target.value)}
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded"
+                                                            placeholder="اسم المشروع"
+                                                        />
+                                                        <input
+                                                            type="text"
+                                                            value={project.description}
+                                                            onChange={(e) => updateProject(project.id, 'description', e.target.value)}
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded"
+                                                            placeholder="وصف المشروع"
+                                                        />
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <div>
+                                                                <label className="text-sm font-bold">نسبة خصم الكاش (%)</label>
+                                                                <input
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    value={project.cashDiscountRate}
+                                                                    onChange={(e) => updateProject(project.id, 'cashDiscountRate', parseFloat(e.target.value))}
+                                                                    className="w-full px-3 py-2 border border-gray-300 rounded"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="text-sm font-bold flex items-center gap-2">
+                                                                    معدل الخصم (%)
+                                                                    {project.discountRateMode === 'auto' && (
+                                                                        <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">محسوب</span>
+                                                                    )}
+                                                                </label>
+                                                                <input
+                                                                    type="number"
+                                                                    step="0.001"
+                                                                    value={project.discountRate}
+                                                                    onChange={(e) => {
+                                                                        const newValue = e.target.value;
+                                                                        if (newValue === '' || newValue === null) {
+                                                                            updateProject(project.id, 'discountRate', 0);
+                                                                        } else {
+                                                                            const parsedValue = parseFloat(newValue);
+                                                                            if (!isNaN(parsedValue)) {
+                                                                                updateProject(project.id, 'discountRate', parsedValue);
+                                                                                updateProject(project.id, 'discountRateMode', 'manual');
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                    className="w-full px-3 py-2 border border-gray-300 rounded"
+                                                                    placeholder="أدخل معدل الخصم"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => setEditingProject(null)} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                                                                ✓ حفظ
+                                                            </button>
+                                                            <button onClick={() => openBaseSystemModal(project.id)} className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded">
+                                                                🧮 تعديل النظام الأساسي
+                                                            </button>
+                                                            <button onClick={() => deleteProject(project.id)} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                                                                🗑️ حذف
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex-1">
+                                                            <h4 className="font-bold text-lg">{project.name}</h4>
+                                                            <p className="text-sm text-gray-600">{project.description}</p>
+                                                            <p className="text-xs text-gray-500 mt-1">
+                                                                خصم كاش: {project.cashDiscountRate}% | معدل خصم: {project.discountRate.toFixed(3)}%
+                                                                {project.discountRateMode === 'auto' && <span className="text-green-600"> (محسوب)</span>}
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => openBaseSystemModal(project.id)} className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded">
+                                                                🧮
+                                                            </button>
+                                                            <button onClick={() => setEditingProject(project.id)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                                                                ✏️ تعديل
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {projects.map(project => (
+                                    <button
+                                        key={project.id}
+                                        onClick={() => setSelectedProjectId(project.id)}
+                                        className={`p-4 rounded-xl border-2 transition-all text-right ${
+                                            selectedProjectId === project.id 
+                                                ? 'border-indigo-500 bg-indigo-50 shadow-lg scale-105' 
+                                                : 'border-gray-200 hover:border-gray-300'
+                                        }`}
+                                    >
+                                        <h3 className="font-bold text-lg text-gray-800 mb-1">{project.name}</h3>
+                                        <p className="text-sm text-gray-600 mb-2">{project.description}</p>
+                                        <div className="text-xs text-gray-500 space-y-1">
+                                            <div className="bg-gray-100 px-2 py-1 rounded">خصم كاش: {project.cashDiscountRate}%</div>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Base System Modal */}
+                        {showBaseSystemModal && currentProjectForBaseSystem && (
+                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 print-hidden" onClick={() => setShowBaseSystemModal(false)}>
+                                <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-slide-in" onClick={(e) => e.stopPropagation()}>
+                                    <div className="bg-gradient-to-r from-cyan-600 to-blue-600 px-8 py-6 text-white sticky top-0 rounded-t-2xl">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h2 className="text-2xl font-bold">🧮 تعديل النظام الأساسي</h2>
+                                                <p className="text-sm text-cyan-100 mt-1">{currentProjectForBaseSystem.name}</p>
+                                            </div>
+                                            <button onClick={() => setShowBaseSystemModal(false)} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg">إغلاق</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="p-8 space-y-6">
+                                        <div className="space-y-4">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-bold text-gray-700 mb-2">المقدم</label>
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="number"
+                                                            value={tempBaseSystem.downPaymentValue}
+                                                            onChange={(e) => setTempBaseSystem({...tempBaseSystem, downPaymentValue: parseFloat(e.target.value) || 0})}
+                                                            className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg"
+                                                            placeholder="القيمة"
+                                                        />
+                                                        <select
+                                                            value={tempBaseSystem.downPaymentIsPercentage ? 'percentage' : 'value'}
+                                                            onChange={(e) => setTempBaseSystem({...tempBaseSystem, downPaymentIsPercentage: e.target.value === 'percentage'})}
+                                                            className="px-4 py-3 border-2 border-gray-300 rounded-lg bg-white"
+                                                        >
+                                                            <option value="percentage">نسبة %</option>
+                                                            <option value="value">قيمة ج</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-bold text-gray-700 mb-2">عدد سنوات الأقساط</label>
+                                                    <input
+                                                        type="number"
+                                                        value={tempBaseSystem.quarterlyYears}
+                                                        onChange={(e) => setTempBaseSystem({...tempBaseSystem, quarterlyYears: parseFloat(e.target.value) || 0})}
+                                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Annual Payments */}
+                                            <div>
+                                                <label className="block text-sm font-bold text-gray-700 mb-2">دفعات سنوية (اختياري)</label>
+                                                <div className="space-y-2">
+                                                    {tempBaseSystem.annualPayments && tempBaseSystem.annualPayments.map((payment, index) => (
+                                                        <div key={index} className="flex gap-2 items-center">
+                                                            <input
+                                                                type="number"
+                                                                value={payment.value}
+                                                                onChange={(e) => {
+                                                                    const updated = [...tempBaseSystem.annualPayments];
+                                                                    updated[index].value = parseFloat(e.target.value) || 0;
+                                                                    setTempBaseSystem({...tempBaseSystem, annualPayments: updated});
+                                                                }}
+                                                                className="flex-1 px-3 py-2 border rounded"
+                                                                placeholder="القيمة"
+                                                            />
+                                                            <select
+                                                                value={payment.isPercentage ? 'percentage' : 'value'}
+                                                                onChange={(e) => {
+                                                                    const updated = [...tempBaseSystem.annualPayments];
+                                                                    updated[index].isPercentage = e.target.value === 'percentage';
+                                                                    setTempBaseSystem({...tempBaseSystem, annualPayments: updated});
+                                                                }}
+                                                                className="px-3 py-2 border rounded bg-white"
+                                                            >
+                                                                <option value="percentage">نسبة %</option>
+                                                                <option value="value">قيمة ج</option>
+                                                            </select>
+                                                            <button
+                                                                onClick={() => {
+                                                                    const updated = tempBaseSystem.annualPayments.filter((_, i) => i !== index);
+                                                                    setTempBaseSystem({...tempBaseSystem, annualPayments: updated});
+                                                                }}
+                                                                className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                    <button
+                                                        onClick={() => {
+                                                            const updated = [...(tempBaseSystem.annualPayments || []), { value: 10, isPercentage: true, type: 'دفعة سنوية' }];
+                                                            setTempBaseSystem({...tempBaseSystem, annualPayments: updated});
+                                                        }}
+                                                        className="w-full bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600"
+                                                    >
+                                                        ➕ إضافة دفعة سنوية
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Semiannual Payments */}
+                                            <div>
+                                                <label className="block text-sm font-bold text-gray-700 mb-2">دفعات نصف سنوية (اختياري)</label>
+                                                <div className="space-y-2">
+                                                    {tempBaseSystem.semiannualPayments && tempBaseSystem.semiannualPayments.map((payment, index) => (
+                                                        <div key={index} className="flex gap-2 items-center">
+                                                            <input
+                                                                type="number"
+                                                                value={payment.value}
+                                                                onChange={(e) => {
+                                                                    const updated = [...tempBaseSystem.semiannualPayments];
+                                                                    updated[index].value = parseFloat(e.target.value) || 0;
+                                                                    setTempBaseSystem({...tempBaseSystem, semiannualPayments: updated});
+                                                                }}
+                                                                className="flex-1 px-3 py-2 border rounded"
+                                                                placeholder="القيمة"
+                                                            />
+                                                            <select
+                                                                value={payment.isPercentage ? 'percentage' : 'value'}
+                                                                onChange={(e) => {
+                                                                    const updated = [...tempBaseSystem.semiannualPayments];
+                                                                    updated[index].isPercentage = e.target.value === 'percentage';
+                                                                    setTempBaseSystem({...tempBaseSystem, semiannualPayments: updated});
+                                                                }}
+                                                                className="px-3 py-2 border rounded bg-white"
+                                                            >
+                                                                <option value="percentage">نسبة %</option>
+                                                                <option value="value">قيمة ج</option>
+                                                            </select>
+                                                            <button
+                                                                onClick={() => {
+                                                                    const updated = tempBaseSystem.semiannualPayments.filter((_, i) => i !== index);
+                                                                    setTempBaseSystem({...tempBaseSystem, semiannualPayments: updated});
+                                                                }}
+                                                                className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                    <button
+                                                        onClick={() => {
+                                                            const updated = [...(tempBaseSystem.semiannualPayments || []), { value: 5, isPercentage: true, type: 'دفعة نصف سنوية' }];
+                                                            setTempBaseSystem({...tempBaseSystem, semiannualPayments: updated});
+                                                        }}
+                                                        className="w-full bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600"
+                                                    >
+                                                        ➕ إضافة دفعة نصف سنوية
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex gap-3">
+                                                <button
+                                                    onClick={() => {
+                                                        const updatedProjects = projects.map(p => {
+                                                            if (p.id === currentProjectForBaseSystem.id) {
+                                                                return {
+                                                                    ...p,
+                                                                    baseSystem: tempBaseSystem
+                                                                };
+                                                            }
+                                                            return p;
+                                                        });
+                                                        setProjects(updatedProjects);
+                                                        setShowBaseSystemModal(false);
+                                                        alert('✅ تم حفظ النظام الأساسي!');
+                                                    }}
+                                                    className="flex-1 bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl text-lg font-bold transition-all shadow-lg"
+                                                >
+                                                    ✓ حفظ النظام الأساسي
+                                                </button>
+                                                <button
+                                                    onClick={calculateDiscountRateForProject}
+                                                    className="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-8 py-4 rounded-xl text-lg font-bold transition-all shadow-lg"
+                                                >
+                                                    🧮 حفظ + حساب معدل الخصم
+                                                </button>
+                                            </div>
+
+                                            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                                <p className="text-sm text-gray-700">
+                                                    <strong>💡 ملحوظة:</strong> عند الضغط على "حفظ + حساب معدل الخصم"، سيتم حساب معدل الخصم تلقائياً بناءً على النظام الأساسي المحدد.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Pattern Selection */}
+                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg p-6 border-2 border-purple-200 print-hidden">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">💡 اختر نمط السداد</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                {patterns.map(pattern => (
+                                    <button
+                                        key={pattern.id}
+                                        onClick={() => setSelectedPattern(pattern.id)}
+                                        className={`p-5 rounded-xl border-2 transition-all text-right ${
+                                            selectedPattern === pattern.id 
+                                                ? 'border-purple-500 bg-purple-50 shadow-lg scale-105' 
+                                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                                        }`}
+                                    >
+                                        <div className="text-4xl mb-3">{pattern.icon}</div>
+                                        <h3 className="font-bold text-xl text-gray-800 mb-2">{pattern.name}</h3>
+                                        <p className="text-sm text-gray-600">{pattern.description}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Input Settings */}
+                        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-100 print-hidden">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">⚙️ تفاصيل الوحدة والسداد</h2>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">قيمة الوحدة (ج)</label>
+                                    <input type="number" value={unitValue} onChange={(e) => setUnitValue(parseFloat(e.target.value) || 0)}
+                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">رقم الوحدة</label>
+                                    <input type="text" value={unitNumber} onChange={(e) => setUnitNumber(e.target.value)}
+                                        placeholder="مثال: A-101"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">المقدم</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="number"
+                                            value={downPaymentValue}
+                                            onChange={(e) => setDownPaymentValue(parseFloat(e.target.value) || 0)}
+                                            className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
+                                            placeholder="القيمة"
+                                        />
+                                        <select
+                                            value={downPaymentIsPercentage ? 'percentage' : 'value'}
+                                            onChange={(e) => setDownPaymentIsPercentage(e.target.value === 'percentage')}
+                                            className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none bg-white"
+                                        >
+                                            <option value="percentage">نسبة %</option>
+                                            <option value="value">قيمة ج</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {getSelectedProject()?.baseSystem && unitValue > 0 && selectedPattern !== 'custom' && (
+                                <div className="mb-6 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h3 className="font-bold text-lg text-gray-800">📋 النظام الأساسي للمشروع</h3>
+                                        <button
+                                            onClick={() => {
+                                                calculateResults();
+                                                setShowComparison(true);
+                                            }}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm"
+                                        >
+                                            📊 مقارنة
+                                        </button>
+                                    </div>
+                                    <div className="text-sm text-gray-700 space-y-1">
+                                        <p>• المقدم: {getSelectedProject().baseSystem.downPaymentIsPercentage ? `${getSelectedProject().baseSystem.downPaymentValue}%` : formatCurrency(getSelectedProject().baseSystem.downPaymentValue)}</p>
+                                        {getSelectedProject().baseSystem.annualPayments && getSelectedProject().baseSystem.annualPayments.map((p, i) => (
+                                            <p key={i}>• دفعة سنوية {i+1}: {p.isPercentage ? `${p.value}%` : formatCurrency(p.value)}</p>
+                                        ))}
+                                        {getSelectedProject().baseSystem.semiannualPayments && getSelectedProject().baseSystem.semiannualPayments.map((p, i) => (
+                                            <p key={i}>• دفعة نصف سنوية {i+1}: {p.isPercentage ? `${p.value}%` : formatCurrency(p.value)}</p>
+                                        ))}
+                                        <p>• أقساط ربع سنوية: {getSelectedProject().baseSystem.quarterlyYears} سنوات</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {(selectedPattern === 'equal' || selectedPattern === 'decreasing' || selectedPattern === 'graduated') && (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">مدة التقسيط (سنوات)</label>
+                                            <input type="number" value={numberOfYears} onChange={(e) => setNumberOfYears(parseFloat(e.target.value) || 0)}
+                                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">تردد الأقساط</label>
+                                            <select value={frequency} onChange={(e) => setFrequency(parseInt(e.target.value))}
+                                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg">
+                                                <option value="12">شهري</option>
+                                                <option value="4">ربع سنوي</option>
+                                                <option value="2">نصف سنوي</option>
+                                                <option value="1">سنوي</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {selectedPattern === 'decreasing' && (
+                                        <div className="p-4 bg-emerald-50 rounded-lg border-2 border-emerald-200">
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">معدل التناقص (% كل فترة)</label>
+                                            <input type="number" value={decreaseRate} onChange={(e) => setDecreaseRate(parseFloat(e.target.value) || 0)}
+                                                className="w-full px-4 py-3 border-2 border-emerald-300 rounded-lg" />
+                                        </div>
+                                    )}
+
+                                    {selectedPattern === 'graduated' && (
+                                        <div className="p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">معدل الزيادة (% كل فترة)</label>
+                                            <input type="number" value={growthRate} onChange={(e) => setGrowthRate(parseFloat(e.target.value) || 0)}
+                                                className="w-full px-4 py-3 border-2 border-purple-300 rounded-lg" />
+                                        </div>
+                                    )}
+
+                                    {/* Annual Payments */}
+                                    <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                                <span>📅</span> دفعات سنوية (اختياري)
+                                            </h3>
+                                            <button onClick={addAnnualPayment} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                                                ➕ إضافة دفعة
+                                            </button>
+                                        </div>
+
+                                        {annualPayments.length > 0 && (
+                                            <div className="space-y-3">
+                                                {annualPayments.map((payment) => (
+                                                    <div key={payment.id} className="bg-white p-3 rounded-lg border border-green-300">
+                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                                            <input
+                                                                type="text"
+                                                                value={payment.type}
+                                                                onChange={(e) => updateAnnualPayment(payment.id, 'type', e.target.value)}
+                                                                placeholder="اسم الدفعة"
+                                                                className="px-3 py-2 border rounded"
+                                                            />
+                                                            <div className="flex gap-2">
+                                                                <input
+                                                                    type="number"
+                                                                    value={payment.value}
+                                                                    onChange={(e) => updateAnnualPayment(payment.id, 'value', parseFloat(e.target.value))}
+                                                                    placeholder="القيمة"
+                                                                    className="flex-1 px-3 py-2 border rounded"
+                                                                />
+                                                                <select
+                                                                    value={payment.isPercentage ? 'percentage' : 'value'}
+                                                                    onChange={(e) => updateAnnualPayment(payment.id, 'isPercentage', e.target.value === 'percentage')}
+                                                                    className="px-3 py-2 border rounded bg-white"
+                                                                >
+                                                                    <option value="percentage">نسبة %</option>
+                                                                    <option value="value">قيمة ج</option>
+                                                                </select>
+                                                            </div>
+                                                            <input
+                                                                type="date"
+                                                                value={payment.date}
+                                                                onChange={(e) => updateAnnualPayment(payment.id, 'date', e.target.value)}
+                                                                className="px-3 py-2 border rounded"
+                                                            />
+                                                            <button onClick={() => deleteAnnualPayment(payment.id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded">
+                                                                🗑️
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Semiannual Payments */}
+                                    <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                                <span>📅</span> دفعات نصف سنوية (اختياري)
+                                            </h3>
+                                            <button onClick={addSemiannualPayment} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                                                ➕ إضافة دفعة
+                                            </button>
+                                        </div>
+
+                                        {semiannualPayments.length > 0 && (
+                                            <div className="space-y-3">
+                                                {semiannualPayments.map((payment) => (
+                                                    <div key={payment.id} className="bg-white p-3 rounded-lg border border-blue-300">
+                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                                            <input
+                                                                type="text"
+                                                                value={payment.type}
+                                                                onChange={(e) => updateSemiannualPayment(payment.id, 'type', e.target.value)}
+                                                                placeholder="اسم الدفعة"
+                                                                className="px-3 py-2 border rounded"
+                                                            />
+                                                            <div className="flex gap-2">
+                                                                <input
+                                                                    type="number"
+                                                                    value={payment.value}
+                                                                    onChange={(e) => updateSemiannualPayment(payment.id, 'value', parseFloat(e.target.value))}
+                                                                    placeholder="القيمة"
+                                                                    className="flex-1 px-3 py-2 border rounded"
+                                                                />
+                                                                <select
+                                                                    value={payment.isPercentage ? 'percentage' : 'value'}
+                                                                    onChange={(e) => updateSemiannualPayment(payment.id, 'isPercentage', e.target.value === 'percentage')}
+                                                                    className="px-3 py-2 border rounded bg-white"
+                                                                >
+                                                                    <option value="percentage">نسبة %</option>
+                                                                    <option value="value">قيمة ج</option>
+                                                                </select>
+                                                            </div>
+                                                            <input
+                                                                type="date"
+                                                                value={payment.date}
+                                                                onChange={(e) => updateSemiannualPayment(payment.id, 'date', e.target.value)}
+                                                                className="px-3 py-2 border rounded"
+                                                            />
+                                                            <button onClick={() => deleteSemiannualPayment(payment.id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded">
+                                                                🗑️
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">تاريخ بدء الأقساط</label>
+                                        <input
+                                            type="date"
+                                            value={quarterlyStartDate}
+                                            onChange={(e) => setQuarterlyStartDate(e.target.value)}
+                                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedPattern === 'custom' && (
+                                <div className="space-y-6">
+                                    <div className="p-4 bg-amber-50 rounded-lg border-2 border-amber-200">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="font-bold text-lg">دفعات مخصصة</h3>
+                                            <button onClick={addCustomPayment} className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm">
+                                                ➕ إضافة دفعة
+                                            </button>
+                                        </div>
+
+                                        {customPayments.length > 0 && (
+                                            <div className="space-y-3">
+                                                {customPayments.map((payment) => (
+                                                    <div key={payment.id} className="bg-white p-3 rounded-lg border border-amber-300">
+                                                        <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
+                                                            <input
+                                                                type="text"
+                                                                value={payment.type}
+                                                                onChange={(e) => updateCustomPayment(payment.id, 'type', e.target.value)}
+                                                                placeholder="اسم"
+                                                                className="px-3 py-2 border rounded"
+                                                            />
+                                                            <div className="flex gap-2">
+                                                                <input
+                                                                    type="number"
+                                                                    value={payment.value}
+                                                                    onChange={(e) => updateCustomPayment(payment.id, 'value', parseFloat(e.target.value))}
+                                                                    placeholder="القيمة"
+                                                                    className="flex-1 px-3 py-2 border rounded"
+                                                                />
+                                                                <select
+                                                                    value={payment.isPercentage ? 'percentage' : 'value'}
+                                                                    onChange={(e) => updateCustomPayment(payment.id, 'isPercentage', e.target.value === 'percentage')}
+                                                                    className="px-3 py-2 border rounded bg-white"
+                                                                >
+                                                                    <option value="percentage">نسبة %</option>
+                                                                    <option value="value">قيمة ج</option>
+                                                                </select>
+                                                            </div>
+                                                            <select
+                                                                value={payment.frequency}
+                                                                onChange={(e) => updateCustomPayment(payment.id, 'frequency', e.target.value)}
+                                                                className="px-3 py-2 border rounded"
+                                                            >
+                                                                <option value="once">مرة واحدة</option>
+                                                                <option value="annual">سنوي</option>
+                                                                <option value="semiannual">نصف سنوي</option>
+                                                            </select>
+                                                            {payment.frequency !== 'once' && (
+                                                                <input
+                                                                    type="number"
+                                                                    value={payment.numberOfPayments || 1}
+                                                                    onChange={(e) => updateCustomPayment(payment.id, 'numberOfPayments', parseInt(e.target.value))}
+                                                                    placeholder="العدد"
+                                                                    className="px-3 py-2 border rounded"
+                                                                />
+                                                            )}
+                                                            <input
+                                                                type="date"
+                                                                value={payment.startDate}
+                                                                onChange={(e) => updateCustomPayment(payment.id, 'startDate', e.target.value)}
+                                                                className="px-3 py-2 border rounded"
+                                                            />
+                                                            <button onClick={() => deleteCustomPayment(payment.id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded">
+                                                                🗑️
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">الأقساط الربع سنوية (سنوات)</label>
+                                            <input
+                                                type="number"
+                                                value={quarterlyYears}
+                                                onChange={(e) => setQuarterlyYears(parseFloat(e.target.value) || 0)}
+                                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">تاريخ بدء الأقساط</label>
+                                            <input
+                                                type="date"
+                                                value={customQuarterlyStartDate}
+                                                onChange={(e) => setCustomQuarterlyStartDate(e.target.value)}
+                                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="flex justify-center mt-6">
+                                <button onClick={calculateResults}
+                                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-12 py-4 rounded-xl text-lg font-bold transition-all shadow-lg hover:shadow-xl">
+                                    🧮 احسب خطة السداد
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Results Display */}
+                        {results && (
+                            <div className="space-y-6">
+                                {/* Print Header */}
+                                <div className="print-only">
+                                    <div className="text-center border-b-4 border-indigo-600 pb-6 mb-6">
+                                        <h1 className="text-3xl font-bold text-indigo-600 mb-2">شركة بيتا للتطوير العقاري</h1>
+                                        <p className="text-xl text-gray-700">BETA SMART FINANCE | نظام التقسيط المرن</p>
+                                        <p className="text-sm text-gray-600 mt-2">التاريخ: {new Date().toLocaleDateString('ar-EG')}</p>
+                                    </div>
+                                </div>
+
+                                {/* Summary Card */}
+                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl shadow-lg p-6 border-2 border-green-200 print-container">
+                                    <div className="flex items-center justify-between mb-4 print-hidden">
+                                        <h2 className="text-2xl font-bold text-gray-800">✅ خطة السداد - {results.patternName}</h2>
+                                        <div className="flex gap-3">
+                                            {baseSystemResults && (
+                                                <button onClick={() => setShowComparison(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+                                                    📊 مقارنة متقدمة
+                                                </button>
+                                            )}
+                                            <button onClick={handlePrint} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg flex items-center gap-2">
+                                                🖨️ طباعة
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="print-only mb-6">
+                                        <div className="grid grid-cols-2 gap-4 text-lg">
+                                            <div><span className="font-bold">المشروع:</span> {getSelectedProject()?.name}</div>
+                                            <div><span className="font-bold">رقم الوحدة:</span> {unitNumber || 'غير محدد'}</div>
+                                            <div><span className="font-bold">قيمة الوحدة:</span> {formatCurrency(unitValue)}</div>
+                                            <div><span className="font-bold">نظام السداد:</span> {results.patternName}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div className="bg-white rounded-lg p-4 text-center shadow">
+                                            <p className="text-sm text-gray-600 mb-1">المقدم</p>
+                                            <p className="text-xl font-bold text-gray-800">{formatCurrency(results.downPayment)}</p>
+                                        </div>
+                                        <div className="bg-white rounded-lg p-4 text-center shadow">
+                                            <p className="text-sm text-gray-600 mb-1">القسط الأول</p>
+                                            <p className="text-xl font-bold text-indigo-600">
+                                                {formatCurrency(results.installmentAmount || results.baseInstallment || results.schedule[results.schedule.length - 1]?.amount || 0)}
+                                            </p>
+                                        </div>
+                                        <div className="bg-white rounded-lg p-4 text-center shadow">
+                                            <p className="text-sm text-gray-600 mb-1">عدد الدفعات</p>
+                                            <p className="text-xl font-bold text-gray-800">{results.schedule.length - 1}</p>
+                                        </div>
+                                        <div className="bg-white rounded-lg p-4 text-center shadow">
+                                            <p className="text-sm text-gray-600 mb-1">إجمالي المدفوع</p>
+                                            <p className="text-xl font-bold text-gray-800">{formatCurrency(results.summary.totalPaid)}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* ADMIN ONLY: Technical Details */}
+                                    {isAdmin && (
+                                        <div className="mt-4 p-4 bg-white rounded-lg shadow print-hidden">
+                                            <h3 className="font-bold text-gray-800 mb-2">🔍 تفاصيل التحقق (للمدير فقط)</h3>
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                                <div>
+                                                    <p className="text-gray-600">قيمة الكاش</p>
+                                                    <p className="font-bold">{formatCurrency(results.verification.cashValue)}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-600">XNPV المحسوبة</p>
+                                                    <p className="font-bold text-green-600">{formatCurrency(results.verification.totalPV)}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-600">الفرق</p>
+                                                    <p className={`font-bold ${Math.abs(results.verification.difference) < 1000 ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {formatCurrency(Math.abs(results.verification.difference))}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-600">معدل الخصم</p>
+                                                    <p className="font-bold text-indigo-600">
+                                                        {getSelectedProject()?.discountRate.toFixed(3)}%
+                                                        {getSelectedProject()?.discountRateMode === 'auto' && <span className="text-xs ml-1">(محسوب)</span>}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Payment Schedule */}
+                                <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-100 print-container">
+                                    <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 print-hidden">
+                                        <h3 className="text-xl font-bold text-white">📋 جدول الدفعات</h3>
+                                    </div>
+                                    
+                                    <div className="print-only bg-indigo-600 px-6 py-3">
+                                        <h3 className="text-xl font-bold text-white">جدول الدفعات التفصيلي</h3>
+                                    </div>
+
+                                    <div className="p-6">
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-sm">
+                                                <thead className="bg-gray-100">
+                                                    <tr>
+                                                        <th className="px-4 py-3 text-right font-bold border">م</th>
+                                                        <th className="px-4 py-3 text-right font-bold border">النوع</th>
+                                                        <th className="px-4 py-3 text-right font-bold border">التاريخ</th>
+                                                        <th className="px-4 py-3 text-right font-bold border">المبلغ</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-200">
+                                                    {results.schedule.map((payment) => (
+                                                        <tr key={payment.id} className="hover:bg-gray-50">
+                                                            <td className="px-4 py-3 border">{payment.id + 1}</td>
+                                                            <td className="px-4 py-3 font-medium border">{payment.type}</td>
+                                                            <td className="px-4 py-3 border">{formatDate(payment.date)}</td>
+                                                            <td className="px-4 py-3 font-bold border">{formatCurrency(payment.amount)}</td>
+                                                        </tr>
+                                                    ))}
+                                                    <tr className="bg-gray-200 font-bold">
+                                                        <td colSpan="3" className="px-4 py-3 border">الإجمالي</td>
+                                                        <td className="px-4 py-3 border">{formatCurrency(results.summary.totalPaid)}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div className="print-only mt-8 pt-6 border-t-2 border-gray-300">
+                                            <div className="grid grid-cols-2 gap-8">
+                                                <div className="text-center">
+                                                    <p className="mb-12">_____________________</p>
+                                                    <p className="font-bold">توقيع العميل</p>
+                                                </div>
+                                                <div className="text-center">
+                                                    <p className="mb-12">_____________________</p>
+                                                    <p className="font-bold">توقيع الشركة</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-center mt-8 text-sm text-gray-600">
+                                                <p>شركة بيتا للتطوير العقاري - BETA SMART FINANCE</p>
+                                                <p className="mt-1">هاتف: 01000000000 - info@beta.com</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Enhanced Comparison Modal */}
+                        <ComparisonModal />
+
+                        {/* Footer */}
+                        <div className="text-center text-gray-600 text-sm mt-8 pb-8 print-hidden">
+                            <p className="font-bold text-indigo-600 text-lg">شركة بيتا للتطوير العقاري</p>
+                            <p className="mt-1">BETA SMART FINANCE | نظام التقسيط المرن - دقة عالية - خدمة متميزة</p>
+                            <p className="mt-2">© 2025 جميع الحقوق محفوظة</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<BetaSmartFinance />, document.getElementById('root'));
+    </script>
+</body>
+</html>
