@@ -939,9 +939,9 @@
             const [projects, setProjects] = useState(() => {
                 const saved = localStorage.getItem('betaProjects_final');
                 return saved ? JSON.parse(saved) : [
-                    { 
+                     { 
                         id: 1, 
-                        name: 'بيتا جرينز المستقبل', 
+                        name: 'بيتا جرينز المستقبل - المرحلة الأخيرة', 
                         cashDiscountRate: 40, 
                         discountRate: 17.1709,
                         discountRateMode: 'manual',
@@ -959,6 +959,26 @@
                     },
                     { 
                         id: 2, 
+                        name: 'بيتا جرينز المستقبل - الاستلام الفوري', 
+                        cashDiscountRate: 40, 
+                        discountRate: 17.1709,
+                        discountRateMode: 'manual',
+                        baseSystem: {
+                            downPaymentValue: 10,
+                            downPaymentIsPercentage: true,
+                            downPaymentDate: null,
+                            annualPayments: [],
+                            semiannualPayments: [],
+                            quarterlyPayments: [
+                                { value: 10, isPercentage: true, type: 'دفعة بعد 3 شهور', date: null }
+                            ],
+                            quarterlyYears: 8
+                        },
+                        description: 'وحدات جاهزة للتسليم الفوري', 
+                        color: 'blue' 
+                    },
+                    { 
+                        id: 3, 
                         name: 'بيتا ريزيدنس أكتوبر', 
                         cashDiscountRate: 30, 
                         discountRate: 13.643,
@@ -973,6 +993,8 @@
                             quarterlyYears: 8
                         },
                         description: 'مجمع سكني فاخر', 
+                        color: 'purple' 
+                    },
                         color: 'blue' 
                     },
                 ];
