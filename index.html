@@ -9,6 +9,7 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap');
@@ -256,6 +257,37 @@
                 return d;
             }
 
+            // دالة إضافة أشهر مع ضبط اليوم على 1 أو 15 بشكل دقيق
+            addMonthsWithDay(date, months, day) {
+                const d = new Date(date);
+                // نحسب الشهر والسنة الجديدة
+                let newMonth = d.getMonth() + months;
+                let newYear = d.getFullYear();
+                
+                // معالجة تجاوز الأشهر
+                while (newMonth > 11) {
+                    newMonth -= 12;
+                    newYear++;
+                }
+                while (newMonth < 0) {
+                    newMonth += 12;
+                    newYear--;
+                }
+                
+                // إنشاء تاريخ جديد مع ضبط الوقت على الظهر لتجنب مشاكل timezone
+                const result = new Date(newYear, newMonth, day, 12, 0, 0);
+                
+                return result;
+            }
+            
+            // دالة تنسيق التاريخ بشكل صحيح (تجنب مشاكل timezone)
+            formatDateLocal(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
             // ═══ FIND EQUAL INSTALLMENT ═══
             findEqualInstallmentXNPV(targetPV, dates) {
                 let low = 0, high = targetPV * 2, tolerance = 0.1;
@@ -292,7 +324,8 @@
                     annualPayments = [],
                     semiannualPayments = [],
                     quarterlyPayments = [],
-                    quarterlyStartDate = null
+                    quarterlyStartDate = null,
+                    installmentDay = 1 // يوم استحقاق القسط (1 أو 15)
                 } = params;
                 
                 const basePaymentDate = downPaymentDate || this.baseDate;
@@ -301,7 +334,7 @@
                 const schedule = [{
                     id: 0,
                     type: 'مقدم',
-                    date: basePaymentDate.toISOString().split('T')[0],
+                    date: this.formatDateLocal(basePaymentDate),
                     amount: downPayment,
                     pv: downPayment,
                     discount: 0
@@ -311,7 +344,7 @@
 
                 // معالجة الدفعات السنوية
                 annualPayments.forEach((payment, index) => {
-                    const paymentDate = payment.date ? new Date(payment.date) : this.addMonths(basePaymentDate, (index + 1) * 12);
+                    const paymentDate = payment.date ? new Date(new Date(payment.date).setHours(12, 0, 0)) : this.addMonthsWithDay(basePaymentDate, (index + 1) * 12, installmentDay);
                     const amount = payment.amount;
                     
                     const pv = this.calculatePVWithDate(amount, paymentDate);
@@ -320,7 +353,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: payment.type || `دفعة سنوية ${index + 1}`,
-                        date: paymentDate.toISOString().split('T')[0],
+                        date: this.formatDateLocal(paymentDate),
                         amount,
                         pv,
                         discount: amount - pv
@@ -329,7 +362,7 @@
 
                 // معالجة الدفعات النصف سنوية
                 semiannualPayments.forEach((payment, index) => {
-                    const paymentDate = payment.date ? new Date(payment.date) : this.addMonths(basePaymentDate, (index + 1) * 6);
+                    const paymentDate = payment.date ? new Date(new Date(payment.date).setHours(12, 0, 0)) : this.addMonthsWithDay(basePaymentDate, (index + 1) * 6, installmentDay);
                     const amount = payment.amount;
                     
                     const pv = this.calculatePVWithDate(amount, paymentDate);
@@ -338,7 +371,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: payment.type || `دفعة نصف سنوية ${index + 1}`,
-                        date: paymentDate.toISOString().split('T')[0],
+                        date: this.formatDateLocal(paymentDate),
                         amount,
                         pv,
                         discount: amount - pv
@@ -347,7 +380,7 @@
 
                 // معالجة الدفعات الربع سنوية (المحددة)
                 quarterlyPayments.forEach((payment, index) => {
-                    const paymentDate = payment.date ? new Date(payment.date) : this.addMonths(basePaymentDate, (index + 1) * 3);
+                    const paymentDate = payment.date ? new Date(new Date(payment.date).setHours(12, 0, 0)) : this.addMonthsWithDay(basePaymentDate, (index + 1) * 3, installmentDay);
                     const amount = payment.amount;
                     
                     const pv = this.calculatePVWithDate(amount, paymentDate);
@@ -356,7 +389,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: payment.type || `دفعة ربع سنوية ${index + 1}`,
-                        date: paymentDate.toISOString().split('T')[0],
+                        date: this.formatDateLocal(paymentDate),
                         amount,
                         pv,
                         discount: amount - pv
@@ -364,12 +397,21 @@
                 });
 
                 const remainingPV = this.cashValue - knownPV;
-                const startDate = quarterlyStartDate ? new Date(quarterlyStartDate) : this.addMonths(basePaymentDate, 3);
+                // تحديد تاريخ بدء الأقساط مع ضبط اليوم دائماً على اليوم المختار
+                let startDate;
+                if (quarterlyStartDate) {
+                    // حتى لو كان التاريخ محدداً، نأخذ الشهر والسنة فقط ونضبط اليوم
+                    const tempDate = new Date(quarterlyStartDate);
+                    // ضبط الوقت على الظهر لتجنب مشاكل timezone
+                    startDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), installmentDay, 12, 0, 0);
+                } else {
+                    startDate = this.addMonthsWithDay(basePaymentDate, 3, installmentDay);
+                }
                 
                 const numberOfQuarters = numberOfYears * frequency;
                 const quarterlyDates = [];
                 for (let i = 0; i < numberOfQuarters; i++) {
-                    quarterlyDates.push(this.addMonths(startDate, i * (12 / frequency)));
+                    quarterlyDates.push(this.addMonthsWithDay(startDate, i * (12 / frequency), installmentDay));
                 }
 
                 const installmentAmount = this.findEqualInstallmentXNPV(remainingPV, quarterlyDates);
@@ -379,7 +421,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: `قسط موحد ${index + 1}`,
-                        date: date.toISOString().split('T')[0],
+                        date: this.formatDateLocal(date),
                         amount: installmentAmount,
                         pv,
                         discount: installmentAmount - pv
@@ -414,14 +456,15 @@
                     annualPayments = [],
                     semiannualPayments = [],
                     quarterlyPayments = [],
-                    quarterlyStartDate = null
+                    quarterlyStartDate = null,
+                    installmentDay = 1
                 } = params;
 
                 let knownPV = downPayment;
                 const schedule = [{
                     id: 0,
                     type: 'مقدم',
-                    date: this.baseDate.toISOString().split('T')[0],
+                    date: this.formatDateLocal(this.baseDate),
                     amount: downPayment,
                     pv: downPayment,
                     discount: 0
@@ -430,7 +473,7 @@
                 let paymentId = 1;
 
                 annualPayments.forEach((payment, index) => {
-                    const paymentDate = payment.date ? new Date(payment.date) : this.addMonths(this.baseDate, (index + 1) * 12);
+                    const paymentDate = payment.date ? new Date(new Date(payment.date).setHours(12, 0, 0)) : this.addMonthsWithDay(this.baseDate, (index + 1) * 12, installmentDay);
                     const amount = payment.amount;
                     
                     const pv = this.calculatePVWithDate(amount, paymentDate);
@@ -439,7 +482,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: payment.type || `دفعة سنوية ${index + 1}`,
-                        date: paymentDate.toISOString().split('T')[0],
+                        date: this.formatDateLocal(paymentDate),
                         amount,
                         pv,
                         discount: amount - pv
@@ -447,7 +490,7 @@
                 });
 
                 semiannualPayments.forEach((payment, index) => {
-                    const paymentDate = payment.date ? new Date(payment.date) : this.addMonths(this.baseDate, (index + 1) * 6);
+                    const paymentDate = payment.date ? new Date(new Date(payment.date).setHours(12, 0, 0)) : this.addMonthsWithDay(this.baseDate, (index + 1) * 6, installmentDay);
                     const amount = payment.amount;
                     
                     const pv = this.calculatePVWithDate(amount, paymentDate);
@@ -456,7 +499,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: payment.type || `دفعة نصف سنوية ${index + 1}`,
-                        date: paymentDate.toISOString().split('T')[0],
+                        date: this.formatDateLocal(paymentDate),
                         amount,
                         pv,
                         discount: amount - pv
@@ -465,7 +508,7 @@
 
                 // معالجة الدفعات الربع سنوية (المحددة)
                 quarterlyPayments.forEach((payment, index) => {
-                    const paymentDate = payment.date ? new Date(payment.date) : this.addMonths(this.baseDate, (index + 1) * 3);
+                    const paymentDate = payment.date ? new Date(new Date(payment.date).setHours(12, 0, 0)) : this.addMonthsWithDay(this.baseDate, (index + 1) * 3, installmentDay);
                     const amount = payment.amount;
                     
                     const pv = this.calculatePVWithDate(amount, paymentDate);
@@ -474,7 +517,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: payment.type || `دفعة ربع سنوية ${index + 1}`,
-                        date: paymentDate.toISOString().split('T')[0],
+                        date: this.formatDateLocal(paymentDate),
                         amount,
                         pv,
                         discount: amount - pv
@@ -482,12 +525,18 @@
                 });
 
                 const remainingPV = this.cashValue - knownPV;
-                const startDate = quarterlyStartDate ? new Date(quarterlyStartDate) : this.addMonths(this.baseDate, 3);
+                let startDate;
+                if (quarterlyStartDate) {
+                    const tempDate = new Date(quarterlyStartDate);
+                    startDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), installmentDay, 12, 0, 0);
+                } else {
+                    startDate = this.addMonthsWithDay(this.baseDate, 3, installmentDay);
+                }
                 
                 const numberOfQuarters = numberOfYears * frequency;
                 const quarterlyDates = [];
                 for (let i = 0; i < numberOfQuarters; i++) {
-                    quarterlyDates.push(this.addMonths(startDate, i * (12 / frequency)));
+                    quarterlyDates.push(this.addMonthsWithDay(startDate, i * (12 / frequency), installmentDay));
                 }
 
                 const baseInstallment = this.findBaseInstallmentDecreasing(remainingPV, quarterlyDates, decreaseRate / 100);
@@ -498,7 +547,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: `قسط متناقص ${index + 1}`,
-                        date: date.toISOString().split('T')[0],
+                        date: this.formatDateLocal(date),
                         amount,
                         pv,
                         discount: amount - pv
@@ -560,14 +609,15 @@
                     annualPayments = [],
                     semiannualPayments = [],
                     quarterlyPayments = [],
-                    quarterlyStartDate = null
+                    quarterlyStartDate = null,
+                    installmentDay = 1
                 } = params;
 
                 let knownPV = downPayment;
                 const schedule = [{
                     id: 0,
                     type: 'مقدم',
-                    date: this.baseDate.toISOString().split('T')[0],
+                    date: this.formatDateLocal(this.baseDate),
                     amount: downPayment,
                     pv: downPayment,
                     discount: 0
@@ -576,7 +626,7 @@
                 let paymentId = 1;
 
                 annualPayments.forEach((payment, index) => {
-                    const paymentDate = payment.date ? new Date(payment.date) : this.addMonths(this.baseDate, (index + 1) * 12);
+                    const paymentDate = payment.date ? new Date(new Date(payment.date).setHours(12, 0, 0)) : this.addMonthsWithDay(this.baseDate, (index + 1) * 12, installmentDay);
                     const amount = payment.amount;
                     
                     const pv = this.calculatePVWithDate(amount, paymentDate);
@@ -585,7 +635,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: payment.type || `دفعة سنوية ${index + 1}`,
-                        date: paymentDate.toISOString().split('T')[0],
+                        date: this.formatDateLocal(paymentDate),
                         amount,
                         pv,
                         discount: amount - pv
@@ -593,7 +643,7 @@
                 });
 
                 semiannualPayments.forEach((payment, index) => {
-                    const paymentDate = payment.date ? new Date(payment.date) : this.addMonths(this.baseDate, (index + 1) * 6);
+                    const paymentDate = payment.date ? new Date(new Date(payment.date).setHours(12, 0, 0)) : this.addMonthsWithDay(this.baseDate, (index + 1) * 6, installmentDay);
                     const amount = payment.amount;
                     
                     const pv = this.calculatePVWithDate(amount, paymentDate);
@@ -602,7 +652,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: payment.type || `دفعة نصف سنوية ${index + 1}`,
-                        date: paymentDate.toISOString().split('T')[0],
+                        date: this.formatDateLocal(paymentDate),
                         amount,
                         pv,
                         discount: amount - pv
@@ -611,7 +661,7 @@
 
                 // معالجة الدفعات الربع سنوية (المحددة)
                 quarterlyPayments.forEach((payment, index) => {
-                    const paymentDate = payment.date ? new Date(payment.date) : this.addMonths(this.baseDate, (index + 1) * 3);
+                    const paymentDate = payment.date ? new Date(new Date(payment.date).setHours(12, 0, 0)) : this.addMonthsWithDay(this.baseDate, (index + 1) * 3, installmentDay);
                     const amount = payment.amount;
                     
                     const pv = this.calculatePVWithDate(amount, paymentDate);
@@ -620,7 +670,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: payment.type || `دفعة ربع سنوية ${index + 1}`,
-                        date: paymentDate.toISOString().split('T')[0],
+                        date: this.formatDateLocal(paymentDate),
                         amount,
                         pv,
                         discount: amount - pv
@@ -628,12 +678,18 @@
                 });
 
                 const remainingPV = this.cashValue - knownPV;
-                const startDate = quarterlyStartDate ? new Date(quarterlyStartDate) : this.addMonths(this.baseDate, 3);
+                let startDate;
+                if (quarterlyStartDate) {
+                    const tempDate = new Date(quarterlyStartDate);
+                    startDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), installmentDay, 12, 0, 0);
+                } else {
+                    startDate = this.addMonthsWithDay(this.baseDate, 3, installmentDay);
+                }
                 
                 const numberOfQuarters = numberOfYears * frequency;
                 const quarterlyDates = [];
                 for (let i = 0; i < numberOfQuarters; i++) {
-                    quarterlyDates.push(this.addMonths(startDate, i * (12 / frequency)));
+                    quarterlyDates.push(this.addMonthsWithDay(startDate, i * (12 / frequency), installmentDay));
                 }
 
                 const baseInstallment = this.findBaseInstallmentGraduated(remainingPV, quarterlyDates, growthRate / 100);
@@ -644,7 +700,7 @@
                     schedule.push({
                         id: paymentId++,
                         type: `قسط متزايد ${index + 1}`,
-                        date: date.toISOString().split('T')[0],
+                        date: this.formatDateLocal(date),
                         amount,
                         pv,
                         discount: amount - pv
@@ -702,14 +758,15 @@
                     downPayment,
                     customPayments = [],
                     quarterlyYears = 0,
-                    quarterlyStartDate = null
+                    quarterlyStartDate = null,
+                    installmentDay = 1
                 } = params;
                 
                 let knownPV = downPayment;
                 const schedule = [{
                     id: 0,
                     type: 'مقدم',
-                    date: this.baseDate.toISOString().split('T')[0],
+                    date: this.formatDateLocal(this.baseDate),
                     amount: downPayment,
                     pv: downPayment,
                     discount: 0
@@ -728,25 +785,40 @@
                         schedule.push({
                             id: paymentId++,
                             type: payment.type || 'دفعة',
-                            date: paymentDate.toISOString().split('T')[0],
+                            date: this.formatDateLocal(paymentDate),
                             amount: baseAmount,
                             pv,
                             discount: baseAmount - pv
                         });
                     } else {
-                        const monthsInterval = payment.frequency === 'annual' ? 12 : 6;
+                        // تحديد الفترة بين الدفعات حسب النوع
+                        let monthsInterval;
+                        switch (payment.frequency) {
+                            case 'annual':
+                                monthsInterval = 12;
+                                break;
+                            case 'semiannual':
+                                monthsInterval = 6;
+                                break;
+                            case 'quarterly':
+                                monthsInterval = 3;
+                                break;
+                            default:
+                                monthsInterval = 12;
+                        }
+                        
                         const numberOfPayments = payment.numberOfPayments || 1;
                         const startDate = payment.startDate ? new Date(payment.startDate) : new Date();
                         
                         for (let i = 0; i < numberOfPayments; i++) {
-                            const paymentDate = this.addMonths(startDate, i * monthsInterval);
+                            const paymentDate = this.addMonthsWithDay(startDate, i * monthsInterval, installmentDay);
                             const pv = this.calculatePVWithDate(baseAmount, paymentDate);
                             knownPV += pv;
                             
                             schedule.push({
                                 id: paymentId++,
                                 type: `${payment.type || 'دفعة'} ${i + 1}`,
-                                date: paymentDate.toISOString().split('T')[0],
+                                date: this.formatDateLocal(paymentDate),
                                 amount: baseAmount,
                                 pv,
                                 discount: baseAmount - pv
@@ -757,12 +829,18 @@
 
                 if (quarterlyYears > 0) {
                     const remainingPV = this.cashValue - knownPV;
-                    const startDate = quarterlyStartDate ? new Date(quarterlyStartDate) : this.addMonths(this.baseDate, 3);
+                    let startDate;
+                    if (quarterlyStartDate) {
+                        const tempDate = new Date(quarterlyStartDate);
+                        startDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), installmentDay, 12, 0, 0);
+                    } else {
+                        startDate = this.addMonthsWithDay(this.baseDate, 3, installmentDay);
+                    }
                     
                     const numberOfQuarters = quarterlyYears * 4;
                     const quarterlyDates = [];
                     for (let i = 0; i < numberOfQuarters; i++) {
-                        quarterlyDates.push(this.addMonths(startDate, i * 3));
+                        quarterlyDates.push(this.addMonthsWithDay(startDate, i * 3, installmentDay));
                     }
 
                     const quarterlyInstallment = this.findEqualInstallmentXNPV(remainingPV, quarterlyDates);
@@ -772,7 +850,7 @@
                         schedule.push({
                             id: paymentId++,
                             type: `قسط ربع سنوي ${index + 1}`,
-                            date: date.toISOString().split('T')[0],
+                            date: this.formatDateLocal(date),
                             amount: quarterlyInstallment,
                             pv,
                             discount: quarterlyInstallment - pv
@@ -982,52 +1060,16 @@
             const ADMIN_PASSWORD = 'beta2025';
 
             const [projects, setProjects] = useState(() => {
-                const saved = localStorage.getItem('betaProjects_final');
+                const saved = localStorage.getItem('betaProjects_v2_9');
                 return saved ? JSON.parse(saved) : [
-                    { 
-                        id: 1, 
-                        name: 'بيتا جرينز المستقبل - المرحلة الأخيرة', 
-                        cashDiscountRate: 40, 
-                        discountRate: 17.1709,
-                        discountRateMode: 'manual',
-                        baseSystem: {
-                            downPaymentValue: 10,
-                            downPaymentIsPercentage: true,
-                            downPaymentDate: null,
-                            annualPayments: [],
-                            semiannualPayments: [],
-                            quarterlyPayments: [],
-                            quarterlyYears: 8
-                        },
-                        description: 'مشروع سكني متكامل', 
-                        color: 'emerald' 
-                    },
-                    { 
-                        id: 2, 
-                        name: 'بيتا جرينز المستقبل - الاستلام الفوري', 
-                        cashDiscountRate: 40, 
-                        discountRate: 20.625,
-                        discountRateMode: 'manual',
-                        baseSystem: {
-                            downPaymentValue: 10,
-                            downPaymentIsPercentage: true,
-                            downPaymentDate: null,
-                            annualPayments: [],
-                            semiannualPayments: [],
-                            quarterlyPayments: [
-                                { value: 10, isPercentage: true, type: 'دفعة بعد 3 شهور', date: null }
-                            ],
-                            quarterlyYears: 8
-                        },
-                        description: 'النظام الأساسي: 10% مقدم + 10% بعد 3 شهور + الباقي على 8 سنوات | وحدات جاهزة للتسليم الفوري', 
-                        color: 'blue' 
-                    },
+                   
                     { 
                         id: 3, 
                         name: 'بيتا ريزيدنس أكتوبر', 
                         cashDiscountRate: 30, 
-                        discountRate: 13.643,
+                        discountRate: 14.00,
                         discountRateMode: 'manual',
+                        minDownPaymentPercent: 5,
                         baseSystem: {
                             downPaymentValue: 15,
                             downPaymentIsPercentage: true,
@@ -1042,10 +1084,11 @@
                     },
                     { 
                         id: 4, 
-                        name: ' بيتا جرينز - مستقبل سيتى - عرض خاص', 
-                        cashDiscountRate: 8, 
-                        discountRate: 17.210,
+                        name: 'بيتا جرينز - مستقبل سيتى', 
+                        cashDiscountRate: 2.583, 
+                        discountRate: 24.000,
                         discountRateMode: 'manual',
+                        minDownPaymentPercent: 25,
                         baseSystem: {
                             downPaymentValue: 50,
                             downPaymentIsPercentage: true,
@@ -1053,16 +1096,16 @@
                             annualPayments: [],
                             semiannualPayments: [],
                             quarterlyPayments: [],
-                            quarterlyYears: 2
+                            quarterlyYears: 0.2451
                         },
-                        description: '🎯 عرض خاص: 50% مقدم والباقي على سنتين | مشروع متميز في مستقبل سيتى', 
+                        description: '🎯 استلام فورى: 50% مقدم و50% بعد 3 شهور | مشروع متميز في مستقبل سيتى', 
                         color: 'rose' 
                     },
                 ];
             });
 
             useEffect(() => {
-                localStorage.setItem('betaProjects_final', JSON.stringify(projects));
+                localStorage.setItem('betaProjects_v2_9', JSON.stringify(projects));
             }, [projects]);
 
             const [showProjectsManager, setShowProjectsManager] = useState(false);
@@ -1098,6 +1141,12 @@
             const [decreaseRate, setDecreaseRate] = useState(2);
             const [growthRate, setGrowthRate] = useState(3);
             
+            // خيار تقريب القسط
+            const [roundingOption, setRoundingOption] = useState('none'); // 'none', '500', '1000'
+            
+            // خيار يوم استحقاق القسط (1 أو 15)
+            const [installmentDay, setInstallmentDay] = useState(1); // 1 or 15
+            
             const [customPayments, setCustomPayments] = useState([]);
             const [quarterlyYears, setQuarterlyYears] = useState(8);
             const [customQuarterlyStartDate, setCustomQuarterlyStartDate] = useState('');
@@ -1127,10 +1176,108 @@
                 });
             };
 
+            // دالة تقريب القسط للأعلى (لأقرب صفرين = 100)
+            const roundInstallmentUp = (amount, roundTo = 100) => {
+                return Math.ceil(amount / roundTo) * roundTo;
+            };
+
+            // دالة تطبيق التقريب التلقائي على جدول الدفعات (للأعلى لأقرب 100)
+            const applyAutoRoundingToSchedule = (schedule) => {
+                return schedule.map(payment => {
+                    // لا نقرب المقدم أو الدفعات المحددة (السنوية/نصف سنوية/ربع سنوية المحددة)
+                    if (payment.type === 'مقدم' || 
+                        payment.type.includes('دفعة سنوية') || 
+                        payment.type.includes('دفعة نصف سنوية') ||
+                        payment.type.includes('دفعة ربع سنوية')) {
+                        return payment;
+                    }
+                    
+                    // تقريب الأقساط للأعلى لأقرب 100
+                    const roundedAmount = roundInstallmentUp(payment.amount, 100);
+                    return {
+                        ...payment,
+                        amount: roundedAmount,
+                        discount: roundedAmount - payment.pv
+                    };
+                });
+            };
+
+            // دالة تقريب القسط (للخيارات الإضافية)
+            const roundInstallment = (amount, option) => {
+                if (option === 'none' || !option) return amount;
+                const roundTo = parseInt(option);
+                // التقريب للأعلى دائماً
+                return Math.ceil(amount / roundTo) * roundTo;
+            };
+
+            // دالة تطبيق التقريب على جدول الدفعات (للخيارات الإضافية)
+            const applyRoundingToSchedule = (schedule, roundingOpt) => {
+                if (roundingOpt === 'none' || !roundingOpt) return schedule;
+                
+                return schedule.map(payment => {
+                    // لا نقرب المقدم أو الدفعات المحددة (السنوية/نصف سنوية/ربع سنوية المحددة)
+                    if (payment.type === 'مقدم' || 
+                        payment.type.includes('دفعة سنوية') || 
+                        payment.type.includes('دفعة نصف سنوية') ||
+                        payment.type.includes('دفعة ربع سنوية')) {
+                        return payment;
+                    }
+                    
+                    // تقريب الأقساط للأعلى
+                    const roundedAmount = roundInstallment(payment.amount, roundingOpt);
+                    return {
+                        ...payment,
+                        amount: roundedAmount,
+                        discount: roundedAmount - payment.pv
+                    };
+                });
+            };
+
             const getSelectedProject = () => projects.find(p => p.id === selectedProjectId);
 
             const handlePrint = () => {
                 window.print();
+            };
+
+            // دالة تصدير التحليل المتقدم إلى PDF (للمدير فقط)
+            const exportComparisonToPDF = () => {
+                const element = document.getElementById('comparison-content');
+                if (!element) {
+                    alert('لا يوجد محتوى للتصدير');
+                    return;
+                }
+
+                const opt = {
+                    margin: [10, 10, 10, 10],
+                    filename: `تحليل_مقارن_${getSelectedProject()?.name || 'مشروع'}_${new Date().toLocaleDateString('ar-EG').replace(/\//g, '-')}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2, 
+                        useCORS: true,
+                        letterRendering: true,
+                        scrollY: 0
+                    },
+                    jsPDF: { 
+                        unit: 'mm', 
+                        format: 'a4', 
+                        orientation: 'portrait'
+                    },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+
+                // إظهار رسالة انتظار
+                const loadingMsg = document.createElement('div');
+                loadingMsg.id = 'pdf-loading';
+                loadingMsg.innerHTML = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999;"><div style="background:white;padding:30px;border-radius:10px;text-align:center;"><p style="font-size:18px;margin:0;">جاري إنشاء ملف PDF...</p><p style="font-size:14px;color:#666;margin-top:10px;">يرجى الانتظار</p></div></div>';
+                document.body.appendChild(loadingMsg);
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    document.body.removeChild(loadingMsg);
+                }).catch((err) => {
+                    document.body.removeChild(loadingMsg);
+                    alert('حدث خطأ أثناء إنشاء الـ PDF');
+                    console.error(err);
+                });
             };
 
             const calculateDownPayment = () => {
@@ -1271,6 +1418,7 @@
                     cashDiscountRate: 30,
                     discountRate: 14.643,
                     discountRateMode: 'manual',
+                    minDownPaymentPercent: 5,
                     baseSystem: {
                         downPaymentValue: 10,
                         downPaymentIsPercentage: true,
@@ -1429,6 +1577,16 @@
                 let result = null;
                 const downPayment = calculateDownPayment();
 
+                // التحقق من أن المقدم لا يقل عن الحد الأدنى المحدد للمشروع
+                const minDownPaymentPercent = project.minDownPaymentPercent || 5;
+                const minDownPayment = unitValue * (minDownPaymentPercent / 100);
+                const actualDownPaymentPercent = (downPayment / unitValue) * 100;
+                
+                if (downPayment < minDownPayment) {
+                    alert(`⚠️ تنبيه للبائع:\n\nقيمة المقدم لا يمكن أن تقل عن ${minDownPaymentPercent}% من قيمة الوحدة لمشروع "${project.name}".\n\nالمقدم الحالي: ${actualDownPaymentPercent.toFixed(2)}%\nالحد الأدنى المطلوب: ${minDownPaymentPercent}%\nقيمة الحد الأدنى: ${formatCurrency(minDownPayment)}\n\nيرجى زيادة قيمة المقدم.`);
+                    return;
+                }
+
                 // التحقق من أن المقدم لا يتجاوز قيمة الكاش
                 const cashValue = unitValue * (1 - project.cashDiscountRate / 100);
                 if (downPayment >= cashValue) {
@@ -1461,7 +1619,8 @@
                     annualPayments: annualPaymentsProcessed,
                     semiannualPayments: semiannualPaymentsProcessed,
                     quarterlyPayments: quarterlyPaymentsProcessed,
-                    quarterlyStartDate: quarterlyStartDate || null
+                    quarterlyStartDate: quarterlyStartDate || null,
+                    installmentDay: installmentDay // يوم استحقاق القسط
                 };
 
                 try {
@@ -1494,7 +1653,8 @@
                                 downPayment,
                                 customPayments: customPaymentsProcessed,
                                 quarterlyYears,
-                                quarterlyStartDate: customQuarterlyStartDate || null
+                                quarterlyStartDate: customQuarterlyStartDate || null,
+                                installmentDay: installmentDay
                             });
                             break;
                     }
@@ -1503,6 +1663,27 @@
                     if (result && result.schedule && result.schedule.some(p => isNaN(p.amount) || p.amount < 0)) {
                         alert('⚠️ حدث خطأ في الحسابات. يرجى التحقق من البيانات المدخلة.');
                         return;
+                    }
+
+                    // تطبيق التقريب التلقائي للأعلى لأقرب 100 أولاً
+                    if (result) {
+                        result.schedule = applyAutoRoundingToSchedule(result.schedule);
+                        result.autoRounded = true;
+                    }
+
+                    // تطبيق التقريب الإضافي إذا تم اختياره (500 أو 1000)
+                    if (roundingOption !== 'none' && result) {
+                        result.schedule = applyRoundingToSchedule(result.schedule, roundingOption);
+                        result.roundingApplied = roundingOption;
+                    }
+
+                    // إعادة حساب الملخص بعد التقريب
+                    if (result) {
+                        result.summary = {
+                            ...result.summary,
+                            totalPaid: result.schedule.reduce((sum, p) => sum + p.amount, 0),
+                            averagePayment: result.schedule.reduce((sum, p) => sum + p.amount, 0) / result.schedule.length
+                        };
                     }
 
                     setResults(result);
@@ -1563,7 +1744,17 @@
                                         <h2 className="text-3xl font-bold">📊 تحليل مقارن متقدم</h2>
                                         <p className="text-sm text-blue-100 mt-1">مقارنة شاملة بين النظام الأساسي والنظام المطلوب</p>
                                     </div>
-                                    <button onClick={() => setShowComparison(false)} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg">إغلاق</button>
+                                    <div className="flex gap-2">
+                                        {isAdmin && (
+                                            <button 
+                                                onClick={exportComparisonToPDF} 
+                                                className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg flex items-center gap-2"
+                                            >
+                                                📄 تصدير PDF
+                                            </button>
+                                        )}
+                                        <button onClick={() => setShowComparison(false)} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg">إغلاق</button>
+                                    </div>
                                 </div>
                                 
                                 <div className="flex gap-2 mt-4">
@@ -1588,9 +1779,15 @@
                                 </div>
                             </div>
                             
-                            <div className="p-8">
+                            <div id="comparison-content" className="p-8">
                                 {comparisonView === 'summary' && (
                                     <div className="space-y-6">
+                                        {/* عنوان للتصدير PDF */}
+                                        <div className="text-center mb-6 hidden" id="pdf-header">
+                                            <h1 className="text-2xl font-bold text-red-600">شركة بيتا للتطوير العقاري</h1>
+                                            <p className="text-lg">تحليل مقارن - {getSelectedProject()?.name}</p>
+                                            <p className="text-sm text-gray-600">التاريخ: {new Date().toLocaleDateString('ar-EG')}</p>
+                                        </div>
                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                             <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-6 border-2 border-gray-300">
                                                 <h3 className="text-2xl font-bold mb-4 text-blue-700 flex items-center gap-2">
@@ -1980,6 +2177,22 @@
                                                                 />
                                                             </div>
                                                         </div>
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <div>
+                                                                <label className="text-sm font-bold text-red-600">الحد الأدنى للمقدم (%)</label>
+                                                                <input
+                                                                    type="number"
+                                                                    step="0.1"
+                                                                    min="0"
+                                                                    max="100"
+                                                                    value={project.minDownPaymentPercent || 5}
+                                                                    onChange={(e) => updateProject(project.id, 'minDownPaymentPercent', parseFloat(e.target.value) || 5)}
+                                                                    className="w-full px-3 py-2 border border-red-300 rounded bg-red-50"
+                                                                    placeholder="الحد الأدنى %"
+                                                                />
+                                                                <p className="text-xs text-gray-500 mt-1">لا يمكن للبائع تحديد مقدم أقل من هذه النسبة</p>
+                                                            </div>
+                                                        </div>
                                                         <div className="flex gap-2">
                                                             <button onClick={() => setEditingProject(null)} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
                                                                 ✓ حفظ
@@ -2000,6 +2213,7 @@
                                                             <p className="text-xs text-gray-500 mt-1">
                                                                 خصم كاش: {project.cashDiscountRate}% | معدل خصم: {project.discountRate.toFixed(3)}%
                                                                 {project.discountRateMode === 'auto' && <span className="text-green-600"> (محسوب)</span>}
+                                                                <span className="text-red-600"> | الحد الأدنى للمقدم: {project.minDownPaymentPercent || 5}%</span>
                                                             </p>
                                                         </div>
                                                         <div className="flex gap-2">
@@ -2392,9 +2606,32 @@
                                         <input
                                             type="number"
                                             value={downPaymentValue}
-                                            onChange={(e) => setDownPaymentValue(parseFloat(e.target.value) || 0)}
-                                            className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-red-500 focus:outline-none"
+                                            onChange={(e) => {
+                                                const newValue = parseFloat(e.target.value) || 0;
+                                                setDownPaymentValue(newValue);
+                                                
+                                                // التحقق الفوري من الحد الأدنى 5%
+                                                if (unitValue > 0) {
+                                                    const actualPercent = downPaymentIsPercentage 
+                                                        ? newValue 
+                                                        : (newValue / unitValue) * 100;
+                                                    
+                                                    if (actualPercent < 5) {
+                                                        // سيظهر التنبيه المرئي تلقائياً
+                                                    }
+                                                }
+                                            }}
+                                            className={`flex-1 px-4 py-3 border-2 rounded-lg focus:outline-none ${
+                                                unitValue > 0 && getSelectedProject() && (
+                                                    downPaymentIsPercentage 
+                                                        ? downPaymentValue < (getSelectedProject().minDownPaymentPercent || 5)
+                                                        : (downPaymentValue / unitValue) * 100 < (getSelectedProject().minDownPaymentPercent || 5)
+                                                ) 
+                                                    ? 'border-red-500 bg-red-50' 
+                                                    : 'border-gray-300 focus:border-red-500'
+                                            }`}
                                             placeholder="القيمة"
+                                            min="0"
                                         />
                                         <select
                                             value={downPaymentIsPercentage ? 'percentage' : 'value'}
@@ -2405,6 +2642,23 @@
                                             <option value="value">قيمة ج</option>
                                         </select>
                                     </div>
+                                    {/* تنبيه مرئي عند انخفاض المقدم عن الحد الأدنى للمشروع */}
+                                    {unitValue > 0 && getSelectedProject() && (
+                                        downPaymentIsPercentage 
+                                            ? downPaymentValue < (getSelectedProject().minDownPaymentPercent || 5)
+                                            : (downPaymentValue / unitValue) * 100 < (getSelectedProject().minDownPaymentPercent || 5)
+                                    ) && (
+                                        <div className="mt-2 p-3 bg-red-100 border border-red-400 rounded-lg">
+                                            <p className="text-red-700 text-sm font-bold flex items-center gap-2">
+                                                <span>⚠️</span>
+                                                تنبيه للبائع: المقدم لا يمكن أن يقل عن {getSelectedProject().minDownPaymentPercent || 5}% لهذا المشروع
+                                            </p>
+                                            <p className="text-red-600 text-xs mt-1">
+                                                النسبة الحالية: {(downPaymentIsPercentage ? downPaymentValue : (downPaymentValue / unitValue) * 100).toFixed(2)}% | 
+                                                الحد الأدنى المطلوب: {formatCurrency(unitValue * (getSelectedProject().minDownPaymentPercent || 5) / 100)}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -2437,7 +2691,7 @@
 
                             {(selectedPattern === 'equal' || selectedPattern === 'decreasing' || selectedPattern === 'graduated') && (
                                 <div className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <div>
                                             <label className="block text-sm font-bold text-gray-700 mb-2">مدة التقسيط (سنوات)</label>
                                             <input type="number" value={numberOfYears} onChange={(e) => setNumberOfYears(parseFloat(e.target.value) || 0)}
@@ -2452,6 +2706,33 @@
                                                 <option value="2">نصف سنوي</option>
                                                 <option value="1">سنوي</option>
                                             </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">📆 يوم استحقاق القسط</label>
+                                            <div className="flex gap-3">
+                                                <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg cursor-pointer transition-all border-2 ${installmentDay === 1 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300 hover:border-blue-400'}`}>
+                                                    <input
+                                                        type="radio"
+                                                        name="installmentDay"
+                                                        value="1"
+                                                        checked={installmentDay === 1}
+                                                        onChange={() => setInstallmentDay(1)}
+                                                        className="hidden"
+                                                    />
+                                                    <span className="font-bold">يوم 1</span>
+                                                </label>
+                                                <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg cursor-pointer transition-all border-2 ${installmentDay === 15 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300 hover:border-blue-400'}`}>
+                                                    <input
+                                                        type="radio"
+                                                        name="installmentDay"
+                                                        value="15"
+                                                        checked={installmentDay === 15}
+                                                        onChange={() => setInstallmentDay(15)}
+                                                        className="hidden"
+                                                    />
+                                                    <span className="font-bold">يوم 15</span>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -2640,17 +2921,22 @@
                                                                 className="px-3 py-2 border rounded"
                                                             >
                                                                 <option value="once">مرة واحدة</option>
-                                                                <option value="annual">سنوي</option>
-                                                                <option value="semiannual">نصف سنوي</option>
+                                                                <option value="quarterly">ربع سنوي (كل 3 شهور)</option>
+                                                                <option value="semiannual">نصف سنوي (كل 6 شهور)</option>
+                                                                <option value="annual">سنوي (كل 12 شهر)</option>
                                                             </select>
                                                             {payment.frequency !== 'once' && (
-                                                                <input
-                                                                    type="number"
-                                                                    value={payment.numberOfPayments || 1}
-                                                                    onChange={(e) => updateCustomPayment(payment.id, 'numberOfPayments', parseInt(e.target.value))}
-                                                                    placeholder="العدد"
-                                                                    className="px-3 py-2 border rounded"
-                                                                />
+                                                                <div className="flex items-center gap-2">
+                                                                    <input
+                                                                        type="number"
+                                                                        min="1"
+                                                                        value={payment.numberOfPayments || 1}
+                                                                        onChange={(e) => updateCustomPayment(payment.id, 'numberOfPayments', parseInt(e.target.value) || 1)}
+                                                                        placeholder="العدد"
+                                                                        className="w-20 px-3 py-2 border rounded"
+                                                                    />
+                                                                    <span className="text-sm text-gray-500">دفعة</span>
+                                                                </div>
                                                             )}
                                                             <input
                                                                 type="date"
@@ -2662,13 +2948,22 @@
                                                                 🗑️
                                                             </button>
                                                         </div>
+                                                        {payment.frequency !== 'once' && (
+                                                            <div className="mt-2 text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                                                                💡 سيتم إنشاء {payment.numberOfPayments || 1} دفعة بقيمة {payment.isPercentage ? `${payment.value}%` : formatCurrency(payment.value)} 
+                                                                {payment.frequency === 'quarterly' && ' كل 3 شهور'}
+                                                                {payment.frequency === 'semiannual' && ' كل 6 شهور'}
+                                                                {payment.frequency === 'annual' && ' كل سنة'}
+                                                                {' '}بدءاً من {payment.startDate || 'تاريخ البدء'}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 ))}
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
                                             <label className="block text-sm font-bold text-gray-700 mb-2">الأقساط الربع سنوية (سنوات)</label>
                                             <input
@@ -2687,7 +2982,90 @@
                                                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg"
                                             />
                                         </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">📆 يوم استحقاق القسط</label>
+                                            <div className="flex gap-3">
+                                                <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg cursor-pointer transition-all border-2 ${installmentDay === 1 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300 hover:border-blue-400'}`}>
+                                                    <input
+                                                        type="radio"
+                                                        name="installmentDayCustom"
+                                                        value="1"
+                                                        checked={installmentDay === 1}
+                                                        onChange={() => setInstallmentDay(1)}
+                                                        className="hidden"
+                                                    />
+                                                    <span className="font-bold">يوم 1</span>
+                                                </label>
+                                                <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg cursor-pointer transition-all border-2 ${installmentDay === 15 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300 hover:border-blue-400'}`}>
+                                                    <input
+                                                        type="radio"
+                                                        name="installmentDayCustom"
+                                                        value="15"
+                                                        checked={installmentDay === 15}
+                                                        onChange={() => setInstallmentDay(15)}
+                                                        className="hidden"
+                                                    />
+                                                    <span className="font-bold">يوم 15</span>
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
+                                </div>
+                            )}
+
+                            {/* خيار تقريب القسط - للمدير فقط */}
+                            {isAdmin && (
+                                <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border-2 border-amber-200">
+                                    <label className="block text-sm font-bold text-gray-700 mb-3">
+                                        <span className="flex items-center gap-2">
+                                            <span>🎯</span>
+                                            إعدادات تقريب القسط (للمدير)
+                                        </span>
+                                    </label>
+                                    <div className="mb-3 p-2 bg-green-100 rounded-lg border border-green-300">
+                                        <p className="text-green-700 text-sm">
+                                            ✅ <strong>تلقائي:</strong> يتم تقريب جميع الأقساط للأعلى لأقرب 100 ج تلقائياً
+                                        </p>
+                                    </div>
+                                    <p className="text-sm text-gray-600 mb-2">تقريب إضافي (اختياري):</p>
+                                    <div className="flex flex-wrap gap-3">
+                                        <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all ${roundingOption === 'none' ? 'bg-amber-500 text-white' : 'bg-white border-2 border-gray-300 hover:border-amber-400'}`}>
+                                            <input
+                                                type="radio"
+                                                name="rounding"
+                                                value="none"
+                                                checked={roundingOption === 'none'}
+                                                onChange={(e) => setRoundingOption(e.target.value)}
+                                                className="hidden"
+                                            />
+                                            <span className="font-medium">بدون تقريب إضافي</span>
+                                        </label>
+                                        <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all ${roundingOption === '500' ? 'bg-amber-500 text-white' : 'bg-white border-2 border-gray-300 hover:border-amber-400'}`}>
+                                            <input
+                                                type="radio"
+                                                name="rounding"
+                                                value="500"
+                                                checked={roundingOption === '500'}
+                                                onChange={(e) => setRoundingOption(e.target.value)}
+                                                className="hidden"
+                                            />
+                                            <span className="font-medium">أقرب 500 ج ↑</span>
+                                        </label>
+                                        <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all ${roundingOption === '1000' ? 'bg-amber-500 text-white' : 'bg-white border-2 border-gray-300 hover:border-amber-400'}`}>
+                                            <input
+                                                type="radio"
+                                                name="rounding"
+                                                value="1000"
+                                                checked={roundingOption === '1000'}
+                                                onChange={(e) => setRoundingOption(e.target.value)}
+                                                className="hidden"
+                                            />
+                                            <span className="font-medium">أقرب 1000 ج ↑</span>
+                                        </label>
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-2">
+                                        💡 التقريب دائماً للأعلى ويطبق على الأقساط الدورية فقط، ولا يؤثر على المقدم أو الدفعات المحددة
+                                    </p>
                                 </div>
                             )}
 
@@ -2714,7 +3092,9 @@
                                 {/* Summary Card */}
                                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl shadow-lg p-6 border-2 border-green-200 print-container">
                                     <div className="flex items-center justify-between mb-4 print-hidden">
-                                        <h2 className="text-2xl font-bold text-gray-800">✅ خطة السداد - {results.patternName}</h2>
+                                        <div>
+                                            <h2 className="text-2xl font-bold text-gray-800">✅ خطة السداد - {results.patternName}</h2>
+                                        </div>
                                         <div className="flex gap-3">
                                             {baseSystemResults && (
                                                 <button onClick={() => setShowComparison(true)} className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg">
@@ -2758,7 +3138,7 @@
                                     </div>
 
                                     {unitArea > 0 && (
-                                        <div className="mt-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl shadow-lg p-6 border-2 border-gray-300">
+                                        <div className="mt-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl shadow-lg p-6 border-2 border-gray-300 print-hidden">
                                             <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                                                 <span>📐</span> تحليل سعر المتر
                                             </h3>
